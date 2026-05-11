@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Încărcare CSV{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-eyebrow">Import date</div>
+  <h1>Încărcare CSV pentru Dashboard BI</h1>
+  <p class="page-subtitle">
+    Încarcă un set de produse în format CSV. Aplicația creează automat produsele,
+    rulează modelele predictive și actualizează istoricul predicțiilor și tabloul de bord BI.
+  </p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Import produse și generare predicții</h2>
+      <p class="card-subtitle">
+        Coloane minime necesare: <strong>name</strong>, <strong>category</strong>, <strong>current_price</strong>.
+        Pentru rezultate mai bune, include și rating, recenzii, vizualizări, vânzări, conversie și marjă.
+      </p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="form-row">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {% for error in field.errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="actions">
+      <button type="submit">Încarcă și generează predicții</button>
+      <a class="btn btn-secondary" href="/analize/">Vezi Tabloul de bord BI</a>
+      <a class="btn btn-ghost" href="/predictii/istoric/">Vezi istoricul predicțiilor</a>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Încărcări recente</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Fișier</th>
+          <th>Rânduri</th>
+          <th>Status</th>
+          <th>Observații</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for upload in uploads %}
+        <tr>
+          <td>{{ upload.original_name }}</td>
+          <td>{{ upload.rows_count }}</td>
+          <td>
+            {% if upload.status == 'imported' %}
+              <span class="badge badge-success">Importat</span>
+            {% elif upload.status == 'error' %}
+              <span class="badge badge-danger">Eroare</span>
+            {% elif upload.status == 'validated' %}
+              <span class="badge badge-info">Validat</span>
+            {% else %}
+              <span class="badge badge-warning">Încărcat</span>
+            {% endif %}
+          </td>
+          <td style="white-space: pre-line;">{{ upload.notes|default:"-" }}</td>
+          <td>{{ upload.created_at|date:"d.m.Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" class="empty-state">Nu există încă fișiere CSV încărcate.</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

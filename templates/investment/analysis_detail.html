@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load ro_labels %}
+{% block title %}Rezultat analiză investițională{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Rezultat analiză investițională</div>
+  <h1>{{ product.name }}</h1>
+  <p class="page-subtitle">Recomandare calculată pe baza predicției ML, a prețului recomandat și a costurilor estimate.</p>
+</div>
+
+<div class="card result-highlight">
+  <h2>{{ analysis.get_decision_label_display }}</h2>
+  <p>{{ analysis.decision_reason }}</p>
+</div>
+
+<div class="card">
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Profit / unitate</div><div class="kpi-value">{{ analysis.profit_per_unit }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Profit total estimat</div><div class="kpi-value">{{ analysis.total_profit }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Marjă profit</div><div class="kpi-value">{{ analysis.profit_margin_percent|floatformat:2 }}%</div></div>
+    <div class="kpi-card"><div class="kpi-label">ROI estimat</div><div class="kpi-value">{{ analysis.roi_percent|floatformat:2 }}%</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div><h2 class="card-title">Indicatori analizați</h2><p class="card-subtitle">Detaliile economice utilizate pentru decizia investițională.</p></div></div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Indicator</th><th>Valoare</th></tr></thead>
+      <tbody>
+        {% if run %}
+        <tr><td>Probabilitate succes ML</td><td>{{ run.success_probability|floatformat:2 }}</td></tr>
+        <tr><td>Clasă succes</td><td>{{ run.success_label }}</td></tr>
+        {% endif %}
+        <tr><td>Preț de vânzare propus</td><td>{{ analysis.recommended_selling_price }}</td></tr>
+        <tr><td>Cost achiziție</td><td>{{ analysis.acquisition_cost }}</td></tr>
+        <tr><td>Transport / logistică</td><td>{{ analysis.shipping_cost }}</td></tr>
+        <tr><td>Marketing</td><td>{{ analysis.marketing_cost }}</td></tr>
+        <tr><td>Alte costuri</td><td>{{ analysis.other_costs }}</td></tr>
+        <tr><td>Comision platformă (%)</td><td>{{ analysis.platform_commission_percent|floatformat:2 }}%</td></tr>
+        <tr><td>Valoare comision / unitate</td><td>{{ analysis.commission_value }}</td></tr>
+        <tr><td>Cost total / unitate</td><td>{{ analysis.total_unit_cost }}</td></tr>
+        <tr><td>Profit estimat / unitate</td><td>{{ analysis.profit_per_unit }}</td></tr>
+        <tr><td>Unități estimate</td><td>{{ analysis.estimated_units }}</td></tr>
+        <tr><td>Venit total estimat</td><td>{{ analysis.total_revenue }}</td></tr>
+        <tr><td>Profit total estimat</td><td>{{ analysis.total_profit }}</td></tr>
+        <tr><td>Marjă profit</td><td>{{ analysis.profit_margin_percent|floatformat:2 }}%</td></tr>
+        <tr><td>ROI estimat</td><td>{{ analysis.roi_percent|floatformat:2 }}%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/oportunitati/">Caută o nouă oportunitate</a>
+    <a class="btn btn-secondary" href="/investitii/">Vezi istoricul investițiilor</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Produs</th>
+        <th>Sursă</th>
+        <th>Preț</th>
+        <th>Rating</th>
+        <th>Recenzii</th>
+        <th>Comenzi estimate</th>
+        <th>Trend</th>
+        <th>Scor comercial</th>
+        <th>Acțiune</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for product in discovered_products %}
+      <tr>
+        <td>
+          <strong>{{ product.title }}</strong>
+          {% if product.brand %}<div class="kpi-note">Brand: {{ product.brand }}</div>{% endif %}
+        </td>
+        <td><span class="badge badge-info">{{ product.source }}</span></td>
+        <td>{{ product.price }} {{ product.currency }}</td>
+        <td>{{ product.rating|floatformat:1 }}</td>
+        <td>{{ product.review_count }}</td>
+        <td>{{ product.estimated_orders }}</td>
+        <td>{{ product.trend_score|floatformat:1 }}</td>
+        <td><strong>{{ product.commercial_score|floatformat:2 }}</strong></td>
+        <td><a class="btn" href="/oportunitati/analizeaza/{{ product.id }}/">Analizează investiția</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="9" class="empty-state">Nu au fost găsite produse care respectă criteriile.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>

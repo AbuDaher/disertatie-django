@@ -1,0 +1,163 @@
+{
+  "selected_classifier": "LogisticRegression",
+  "selected_regressor": "GradientBoostingRegressor",
+  "classifier_metrics": [
+    {
+      "model": "LogisticRegression",
+      "accuracy": 0.9167,
+      "precision": 0.9072,
+      "recall": 0.8889,
+      "f1": 0.898,
+      "f1_macro": 0.9138,
+      "roc_auc": 0.9761,
+      "cv_f1_mean": 0.8904,
+      "cv_f1_std": 0.0166,
+      "cv_auc_mean": 0.9703,
+      "cv_auc_std": 0.0096
+    },
+    {
+      "model": "DecisionTreeClassifier",
+      "accuracy": 0.8708,
+      "precision": 0.8208,
+      "recall": 0.8788,
+      "f1": 0.8488,
+      "f1_macro": 0.868,
+      "roc_auc": 0.9269,
+      "cv_f1_mean": 0.8528,
+      "cv_f1_std": 0.0211,
+      "cv_auc_mean": 0.936,
+      "cv_auc_std": 0.0143
+    },
+    {
+      "model": "RandomForestClassifier",
+      "accuracy": 0.8667,
+      "precision": 0.8681,
+      "recall": 0.798,
+      "f1": 0.8316,
+      "f1_macro": 0.8606,
+      "roc_auc": 0.9597,
+      "cv_f1_mean": 0.8796,
+      "cv_f1_std": 0.0142,
+      "cv_auc_mean": 0.9685,
+      "cv_auc_std": 0.0045
+    },
+    {
+      "model": "GradientBoostingClassifier",
+      "accuracy": 0.9042,
+      "precision": 0.913,
+      "recall": 0.8485,
+      "f1": 0.8796,
+      "f1_macro": 0.9,
+      "roc_auc": 0.9759,
+      "cv_f1_mean": 0.8964,
+      "cv_f1_std": 0.0172,
+      "cv_auc_mean": 0.9779,
+      "cv_auc_std": 0.0042
+    },
+    {
+      "model": "ExtraTreesClassifier",
+      "accuracy": 0.8917,
+      "precision": 0.8763,
+      "recall": 0.8586,
+      "f1": 0.8673,
+      "f1_macro": 0.8879,
+      "roc_auc": 0.9707,
+      "cv_f1_mean": 0.8791,
+      "cv_f1_std": 0.0212,
+      "cv_auc_mean": 0.9719,
+      "cv_auc_std": 0.0062
+    }
+  ],
+  "regressor_metrics": [
+    {
+      "model": "Ridge",
+      "mae": 6.7338,
+      "rmse": 9.5884,
+      "r2": 0.9912,
+      "cv_r2_mean": 0.991,
+      "cv_r2_std": 0.0014,
+      "cv_rmse_mean": 9.2256,
+      "cv_rmse_std": 0.7575
+    },
+    {
+      "model": "LinearRegression",
+      "mae": 6.737,
+      "rmse": 9.5996,
+      "r2": 0.9912,
+      "cv_r2_mean": 0.991,
+      "cv_r2_std": 0.0015,
+      "cv_rmse_mean": 9.2306,
+      "cv_rmse_std": 0.7733
+    },
+    {
+      "model": "DecisionTreeRegressor",
+      "mae": 9.1241,
+      "rmse": 16.2567,
+      "r2": 0.9748,
+      "cv_r2_mean": 0.9817,
+      "cv_r2_std": 0.005,
+      "cv_rmse_mean": 13.0996,
+      "cv_rmse_std": 1.5286
+    },
+    {
+      "model": "RandomForestRegressor",
+      "mae": 10.5368,
+      "rmse": 15.8952,
+      "r2": 0.9759,
+      "cv_r2_mean": 0.9619,
+      "cv_r2_std": 0.0062,
+      "cv_rmse_mean": 18.9952,
+      "cv_rmse_std": 1.5863
+    },
+    {
+      "model": "GradientBoostingRegressor",
+      "mae": 5.1343,
+      "rmse": 9.5884,
+      "r2": 0.9912,
+      "cv_r2_mean": 0.994,
+      "cv_r2_std": 0.0015,
+      "cv_rmse_mean": 7.5002,
+      "cv_rmse_std": 1.0165
+    },
+    {
+      "model": "ExtraTreesRegressor",
+      "mae": 16.2261,
+      "rmse": 21.7271,
+      "r2": 0.955,
+      "cv_r2_mean": 0.9463,
+      "cv_r2_std": 0.0047,
+      "cv_rmse_mean": 22.6493,
+      "cv_rmse_std": 1.4199
+    }
+  ],
+  "dataset": {
+    "rows": 1200,
+    "success_rate": 0.4108,
+    "avg_price": 119.22,
+    "avg_competitive_price": 136.33,
+    "categories": [
+      "Automotive",
+      "Beauty",
+      "Books",
+      "Electronics",
+      "Fashion",
+      "Garden",
+      "Health",
+      "Home",
+      "Sports",
+      "Toys"
+    ],
+    "seasons": [
+      "holiday",
+      "normal",
+      "offseason",
+      "promo"
+    ],
+    "engineered_features": [
+      "price_to_cost_ratio",
+      "demand_index",
+      "engagement_rate"
+    ]
+  },
+  "cv_folds": 5
+}

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Rezultate căutare: {{ search_query.keyword }}</h1>
+<p><strong>Sursa cerută:</strong> {{ search_query.get_data_source_display }}</p>
+<p><strong>Sursa folosită:</strong> {{ search_query.used_source }}</p>
+<p>{{ search_query.status_message }}</p>
+
+{% include 'discovery/partials_results_table.html' with discovered_products=discovered_products %}
+{% endblock %}

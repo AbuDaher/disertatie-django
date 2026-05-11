@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load ro_labels %}
+{% block title %}Rezultat predicție — {{ product.name }}{% endblock %}
+{% block content %}
+<style>
+  .xai-bar-track { height:10px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin-top:7px; }
+  .xai-bar-fill { height:100%; border-radius:999px; }
+  .xai-bar-pos  { background: linear-gradient(90deg,#4f46e5,#06b6d4); }
+  .xai-bar-neg  { background: linear-gradient(90deg,#dc2626,#f97316); }
+  .prob-ring    { width:96px; height:96px; border-radius:50%; display:flex; align-items:center;
+                  justify-content:center; font-size:22px; font-weight:800; border:5px solid; }
+  .prob-high    { border-color:#16a34a; color:#16a34a; }
+  .prob-med     { border-color:#f59e0b; color:#f59e0b; }
+  .prob-low     { border-color:#ef4444; color:#ef4444; }
+  .feature-grid { display:grid; gap:10px; }
+  .feature-item { border:1px solid #e2e8f0; border-radius:14px; padding:12px 15px; background:#fff; }
+</style>
+
+<div class="page-header">
+  <div class="page-eyebrow">Rezultat model predictiv</div>
+  <h1>{{ product.name }}</h1>
+  <p class="page-subtitle">
+    Estimare potențial comercial, probabilitate de succes, preț competitiv recomandat și explicații XAI locale.
+  </p>
+</div>
+
+{% if run %}
+
+{# ─── KPI PRINCIPAL ─────────────────────────────────────────────────────── #}
+<div class="card">
+  <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
+    <div class="prob-ring {% if run.success_probability >= 0.70 %}prob-high{% elif run.success_probability >= 0.45 %}prob-med{% else %}prob-low{% endif %}">
+      {{ run.success_probability|floatformat:2 }}
+    </div>
+    <div style="flex:1;min-width:200px;">
+      <div style="font-size:22px;font-weight:700;color:#1e293b;">{{ run.success_label }}</div>
+      <div style="color:#64748b;margin-top:4px;font-size:14px;">
+        Probabilitate de succes comercial estimată de modelul {{ run.model_name_classifier }}.
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" style="margin-top:20px;">
+    <div class="kpi-card">
+      <div class="kpi-label">Preț recomandat</div>
+      <div class="kpi-value">{{ run.recommended_price }} lei</div>
+      <div class="kpi-sub">Model: {{ run.model_name_regressor }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Preț curent produs</div>
+      <div class="kpi-value">{{ product.current_price }} lei</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rating</div>
+      <div class="kpi-value">{{ product.rating|floatformat:1 }} / 5</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Recenzii</div>
+      <div class="kpi-value">{{ product.review_count }}</div>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:16px;">
+    <a class="btn" href="/investitii/produs/{{ product.id }}/">Analizează profitabilitatea</a>
+    {% if analysis_run %}
+      <a class="btn btn-secondary" href="/analize/verificare/{{ analysis_run.id }}/">Raport verificare</a>
+    {% endif %}
+    <a class="btn btn-secondary" href="/analize/modele/">Performanța modelelor ML</a>
+    <a class="btn btn-ghost" href="/oportunitati/">Alte oportunități</a>
+  </div>
+</div>
+
+{# ─── REZUMAT XAI ────────────────────────────────────────────────────────── #}
+{% if xai.summary %}
+<div class="card result-highlight">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Explicație predictivă XAI</h2>
+      <p class="card-subtitle">{{ xai.type|default:"Explicație locală" }}</p>
+    </div>
+    <span class="badge badge-info">XAI</span>
+  </div>
+  <p style="line-height:1.7;color:#334155;">{{ xai.summary }}</p>
+</div>
+{% endif %}
+
+{# ─── FACTORI POZITIVI / NEGATIVI ────────────────────────────────────────── #}
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Factori care susțin predicția</h2>
+        <p class="card-subtitle">Variabile cu impact pozitiv.</p>
+      </div>
+    </div>
+    <div class="feature-grid">
+      {% for item in xai.positive %}
+      <div class="feature-item">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:13px;">{{ item.label|default:item.feature }}</strong>
+          <span style="font-weight:800;color:#16a34a;">+{{ item.impact|floatformat:4 }}</span>
+        </div>
+        <div class="xai-bar-track">
+          <div class="xai-bar-fill xai-bar-pos" style="width:{% widthratio item.impact 0.25 100 %}%;"></div>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">Valoare: {{ item.value }}</div>
+      </div>
+      {% empty %}
+        <div class="empty-state">Nu există factori pozitivi evidențiați.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Factori de risc sau limitare</h2>
+        <p class="card-subtitle">Variabile cu impact negativ.</p>
+      </div>
+    </div>
+    <div class="feature-grid">
+      {% for item in xai.negative %}
+      <div class="feature-item">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:13px;">{{ item.label|default:item.feature }}</strong>
+          <span style="font-weight:800;color:#dc2626;">{{ item.impact|floatformat:4 }}</span>
+        </div>
+        <div class="xai-bar-track">
+          <div class="xai-bar-fill xai-bar-neg"
+               style="width:{% widthratio item.impact -0.25 100 %}%;"></div>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">Valoare: {{ item.value }}</div>
+      </div>
+      {% empty %}
+        <div class="empty-state">Nu există factori negativi majori.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ─── TABEL CONTRIBUȚII LOCALE ───────────────────────────────────────────── #}
+{% if xai.local %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Contribuții locale ale variabilelor</h2>
+      <p class="card-subtitle">Impactul numeric al fiecărei variabile asupra predicției acestui produs.</p>
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Variabilă</th><th>Valoare produs</th><th>Contribuție locală</th><th>Direcție</th></tr>
+      </thead>
+      <tbody>
+        {% for item in xai.local %}
+        <tr>
+          <td><strong>{{ item.label|default:item.feature }}</strong></td>
+          <td>{{ item.value }}</td>
+          <td>{{ item.impact|floatformat:5 }}</td>
+          <td>
+            {% if item.direction == 'pozitiv' %}
+              <span class="badge badge-success">↑ pozitiv</span>
+            {% else %}
+              <span class="badge badge-warning">↓ negativ</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+          <tr><td colspan="4" class="empty-state">Nu există contribuții locale.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{# ─── DATE PRODUS ────────────────────────────────────────────────────────── #}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Date utilizate în predicție</h2>
+      <p class="card-subtitle">Valorile introduse sau importate pentru produsul analizat.</p>
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Câmp</th><th>Valoare</th></tr>
+      </thead>
+      <tbody>
+        {% for key, value in explanation_items %}
+          <tr><td>{{ key|ro_label }}</td><td>{{ value|ro_value }}</td></tr>
+        {% empty %}
+          <tr><td colspan="2" class="empty-state">Nu există date disponibile.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div class="card">
+  <div class="empty-state">Nu există predicție pentru acest produs.</div>
+</div>
+{% endif %}
+
+{% endblock %}

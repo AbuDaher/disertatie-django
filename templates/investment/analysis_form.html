@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Analiză investițională{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Analiză investițională</div>
+  <h1>Analiză investițională: {{ product.name }}</h1>
+  <p class="page-subtitle">
+    Completează costurile reale sau estimate. Aplicația calculează profitul pe unitate,
+    profitul total, marja, randamentul investiției și recomandarea finală.
+  </p>
+</div>
+
+{% if run %}
+<div class="card">
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Predicție ML</div><div class="kpi-value">{{ run.success_label }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Probabilitate succes</div><div class="kpi-value">{{ run.success_probability|floatformat:2 }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Preț recomandat de model</div><div class="kpi-value">{{ run.recommended_price }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Produs</div><div class="kpi-value">{{ product.category }}</div></div>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="form-row">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="actions">
+      <button type="submit">Calculează profitabilitatea</button>
+      <a class="btn btn-secondary" href="/predictii/produs/{{ product.id }}/">Înapoi la predicție</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Caută oportunități comerciale</h1>
+<p class="muted">Caută produse candidate și generează Top 3 / Top 5 / Top 10 după potențial comercial.</p>
+
+<form method="post" class="card form-grid">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Caută oportunități</button>
+</form>
+
+{% if search_query %}
+  <h2>Rezultate pentru: {{ search_query.keyword }}</h2>
+  <p><strong>Sursa folosită:</strong> {{ search_query.used_source }}</p>
+  <p>{{ search_query.status_message }}</p>
+
+  {% include 'discovery/partials_results_table.html' with discovered_products=discovered_products %}
+{% endif %}
+
+<h2>Căutări recente</h2>
+<ul>
+  {% for item in recent_searches %}
+    <li><a href="/oportunitati/cautare/{{ item.id }}/">{{ item.keyword }} - Top {{ item.top_n }}</a> - {{ item.created_at|date:"d.m.Y H:i" }}</li>
+  {% empty %}
+    <li>Nu există căutări recente.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

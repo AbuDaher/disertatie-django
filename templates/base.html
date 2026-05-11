@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Platformă AI pentru decizii comerciale{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/static/css/app.css?v=20260509-2">
+</head>
+
+<body>
+<div class="app-shell">
+
+    <header class="topbar">
+        <div class="topbar-inner">
+
+            <a class="brand" href="/">
+                <span class="brand-mark">AI</span>
+                <span class="brand-text">
+                    <strong>Business AI</strong>
+                    <small>Suport decizional comercial</small>
+                </span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="/">Acasă</a>
+                <a href="/oportunitati/">Caută oportunități</a>
+                <a href="/produse/adauga/">Evaluare produs</a>
+                <a href="/predictii/istoric/">Istoric predicții</a>
+                <a href="/investitii/">Istoric investiții</a>
+                <a href="/analize/">Tablou de bord BI</a>
+                <a href="/date/upload/">Încărcare CSV</a>
+                <a href="/admin/">Administrare</a>
+            </nav>
+
+        </div>
+    </header>
+
+    <main class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        Platformă de asistare a deciziilor comerciale prin Machine Learning, Explainable AI și Business Intelligence.
+    </footer>
+
+</div>
+</body>
+</html>

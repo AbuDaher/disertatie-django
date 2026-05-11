@@ -1,0 +1,13 @@
+external_id,title,category,brand,price,currency,item_url,image_url,condition,seller_username,seller_feedback_score,seller_feedback_percent,rating,review_count,estimated_orders,trend_score
+CSV-001,Smartwatch FitPro S9,smartwatch,NovaTech,69.99,USD,https://www.ebay.com/sch/i.html?_nkw=smartwatch,,New,top_seller_tech,8420,99.2,4.7,340,1450,92
+CSV-002,Smartwatch Health Monitor Pro,smartwatch,VitaTrack,84.50,USD,https://www.ebay.com/sch/i.html?_nkw=smartwatch,,New,wearable_store,5210,98.7,4.5,260,980,85
+CSV-003,Smartwatch Kids GPS Mini,smartwatch,SafeKid,54.90,USD,https://www.ebay.com/sch/i.html?_nkw=smartwatch,,New,family_gadgets,2980,97.9,4.3,180,620,76
+CSV-004,Bluetooth Headphones X100,bluetooth headphones,SoundWave,34.99,USD,https://www.ebay.com/sch/i.html?_nkw=bluetooth+headphones,,New,audio_market,12000,99.5,4.6,520,2100,94
+CSV-005,Wireless Earbuds Bass Pro,bluetooth headphones,Bassio,24.80,USD,https://www.ebay.com/sch/i.html?_nkw=bluetooth+headphones,,New,mobile_audio,7600,98.9,4.4,410,1650,89
+CSV-006,Noise Cancelling Bluetooth Headphones,bluetooth headphones,QuietMax,59.99,USD,https://www.ebay.com/sch/i.html?_nkw=bluetooth+headphones,,New,sound_deals,4300,97.8,4.5,290,890,81
+CSV-007,Portable Mini Projector 1080p,portable projector,VisionGo,129.99,USD,https://www.ebay.com/sch/i.html?_nkw=portable+projector,,New,home_cinema_shop,6500,99.1,4.6,310,760,88
+CSV-008,Mini LED Projector Home Cinema,portable projector,LumaPix,95.00,USD,https://www.ebay.com/sch/i.html?_nkw=portable+projector,,New,gadget_center,3800,98.4,4.2,190,520,72
+CSV-009,Smart LED Desk Lamp Wireless Charger,smart lamp,LumiDesk,39.99,USD,https://www.ebay.com/sch/i.html?_nkw=smart+lamp,,New,smart_home_seller,9100,99.0,4.8,450,1250,90
+CSV-010,Car Vacuum Cleaner Wireless,car vacuum,AutoClean,44.99,USD,https://www.ebay.com/sch/i.html?_nkw=car+vacuum,,New,auto_accessories,5750,98.2,4.4,230,710,79
+CSV-011,Smart Fitness Ring Health Tracker,smart ring,FitRing,79.99,USD,https://www.ebay.com/sch/i.html?_nkw=smart+ring,,New,wearable_store,5210,98.7,4.1,95,310,70
+CSV-012,Portable Power Bank 20000mAh,power bank,VoltMax,29.99,USD,https://www.ebay.com/sch/i.html?_nkw=power+bank,,New,mobile_power,14300,99.4,4.7,680,2500,95

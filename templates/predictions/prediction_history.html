@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Verificări efectuate{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Istoric verificări</div>
+  <h1>Verificări efectuate</h1>
+  <p class="page-subtitle">
+    Fiecare verificare reprezintă o analiză distinctă: un upload CSV, o evaluare manuală sau o oportunitate selectată.
+    Astfel, rezultatele nu se amestecă între ele și pot fi analizate separat.
+  </p>
+</div>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Verificare</th>
+          <th>Sursă</th>
+          <th>Produse</th>
+          <th>Predicții</th>
+          <th>Investiții</th>
+          <th>Data</th>
+          <th>Acțiune</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for item in analysis_runs %}
+        <tr>
+          <td><strong>{{ item.title }}</strong></td>
+          <td>{{ item.get_source_type_display }}</td>
+          <td>{{ item.products_count }}</td>
+          <td>{{ item.predictions_count }}</td>
+          <td>{{ item.investment_count }}</td>
+          <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+          <td><a class="btn btn-ghost" href="/analize/verificare/{{ item.id }}/">Vezi raport</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="empty-state">Nu există încă verificări salvate.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if legacy_runs %}
+<div class="card">
+  <h2>Predicții vechi fără verificare asociată</h2>
+  <p class="page-subtitle">
+    Aceste predicții au fost create înainte de introducerea conceptului de verificare. Ele rămân disponibile, dar nu intră în rapoartele pe verificări.
+  </p>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Produs</th><th>Rezultat</th><th>Probabilitate</th><th>Preț recomandat</th><th>Data</th></tr></thead>
+      <tbody>
+      {% for run in legacy_runs %}
+        <tr>
+          <td>{{ run.product.name }}</td>
+          <td>{{ run.success_label }}</td>
+          <td>{{ run.success_probability|floatformat:2 }}</td>
+          <td>{{ run.recommended_price }}</td>
+          <td>{{ run.created_at|date:"d.m.Y H:i" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

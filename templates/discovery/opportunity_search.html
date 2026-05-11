@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Caută oportunități comerciale{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Discovery comercial</div>
+  <h1>Caută oportunități comerciale</h1>
+  <p class="page-subtitle">
+    Definește preferințele de căutare, iar aplicația identifică produse candidate cu potențial comercial ridicat.
+    Sursa reală poate fi eBay API, iar pentru demonstrație stabilă există CSV fallback.
+  </p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Filtre de căutare</h2>
+      <p class="card-subtitle">Alege categoria, bugetul și pragurile minime pentru rating și recenzii.</p>
+    </div>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="form-row">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="actions">
+      <button type="submit">Caută oportunități</button>
+      <a class="btn btn-secondary" href="/oportunitati/">Resetează filtrele</a>
+    </div>
+  </form>
+</div>
+
+{% if search_query %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Rezultate căutare: {{ search_query.keyword }}</h2>
+      <p class="card-subtitle">
+        Sursa cerută: {{ search_query.get_data_source_display }} · Sursa folosită: {{ search_query.used_source|default:"neprecizată" }}
+      </p>
+    </div>
+  </div>
+  {% if search_query.status_message %}<div class="alert alert-info">{{ search_query.status_message }}</div>{% endif %}
+  {% include 'discovery/partials_results_table.html' with discovered_products=discovered_products %}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Căutări recente</h2>
+      <p class="card-subtitle">Ultimele interogări efectuate în modulul de oportunități.</p>
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Cuvânt cheie</th><th>Categorie</th><th>Top rezultate</th><th>Sursă date</th><th>Data</th></tr></thead>
+      <tbody>
+      {% for item in recent_searches %}
+        <tr>
+          <td><a href="/oportunitati/cautare/{{ item.id }}/">{{ item.keyword }}</a></td>
+          <td>{{ item.category|default:"-" }}</td>
+          <td>Top {{ item.top_n }}</td>
+          <td><span class="badge badge-info">{{ item.get_data_source_display }}</span></td>
+          <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="empty-state">Nu există încă interogări salvate.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

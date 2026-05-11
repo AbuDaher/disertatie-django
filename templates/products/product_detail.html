@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Detalii produs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Produs analizat</div>
+  <h1>{{ product.name }}</h1>
+  <p class="page-subtitle">Detalii comerciale utilizate în procesul de evaluare predictivă.</p>
+</div>
+
+<div class="card">
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Categorie</div><div class="kpi-value">{{ product.category }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Preț curent</div><div class="kpi-value">{{ product.current_price }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Rating</div><div class="kpi-value">{{ product.rating }}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Număr recenzii</div><div class="kpi-value">{{ product.review_count }}</div></div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/predictii/produs/{{ product.id }}/">Vezi predicția</a>
+    <a class="btn btn-secondary" href="/produse/adauga/">Evaluează alt produs</a>
+  </div>
+</div>
+{% endblock %}

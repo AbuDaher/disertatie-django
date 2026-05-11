@@ -1,0 +1,6 @@
+name,category,brand,current_price,cost,discount_percent,rating,review_count,views,add_to_cart,sales_volume,stock_level,conversion_rate,margin_percent,season
+Smartwatch FitPro X12,Electronics,NovaTech,249.99,140.00,10,4.7,385,6200,520,180,45,4.8,44,normal
+Rucsac Sport UltraLight,Sports,TrailMaster,149.99,72.00,15,4.4,210,3800,310,95,28,3.9,52,normal
+Cremă Hidratantă ProSkin,Beauty,DermaCare,89.99,32.00,0,4.6,540,4100,390,145,60,5.1,64,tot_anul
+Lampă LED Birou Flex,Home,LumiTech,119.99,58.00,5,4.3,175,2900,240,88,32,4.2,51,normal
+Carte Programare Python,Books,TechPress,79.99,28.00,20,4.8,920,5500,610,290,120,6.3,65,normal

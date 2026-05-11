@@ -1,0 +1,41 @@
+﻿name,category,brand,current_price,cost,discount_percent,rating,review_count,views,add_to_cart,sales_volume,stock_level,conversion_rate,margin_percent,season,platform_price,currency,estimated_orders,trend_score,seller_feedback_score,seller_feedback_percent,source
+Smartwatch FitPro S9,Wearables,NovaTech,71.37,35.00,8,4.7,340,11600,2900,1450,50,4.0,31.75,tot_anul,71.37,RON,1611,99,10172,97.1,csv_upload_test
+Căști Bluetooth X100,Audio,SoundMax,257.57,145.00,12,4.6,520,18400,3100,1620,120,5.2,28.4,tot_anul,257.57,RON,1841,99,14805,98.4,csv_upload_test
+Mini proiector portabil LumaGo,Electronice,LumaTech,389.90,245.00,10,4.5,410,15200,2250,980,35,3.8,24.7,sezon_cadou,389.90,RON,980,99,12568,97.3,csv_upload_test
+Lampă LED smart Aurora,Smart Home,HomeIQ,129.99,62.00,15,4.8,760,22100,4200,2450,210,6.1,36.3,tot_anul,129.99,RON,2528,99,14292,99.0,csv_upload_test
+Aspirator auto wireless TurboClean,Auto,CleanPro,169.50,92.00,9,4.4,280,9800,1320,610,80,3.4,22.1,primavara,169.50,RON,615,99,8155,99.7,csv_upload_test
+Cameră supraveghere WiFi 360,Smart Home,SecureVision,219.99,128.00,7,4.6,630,19600,3400,1710,95,4.9,29.4,tot_anul,219.99,RON,1884,99,14613,99.6,csv_upload_test
+Mouse gaming RGB Pro,Gaming,GameCore,149.99,78.00,18,4.7,890,25100,4700,2800,300,6.7,33.5,black_friday,149.99,RON,2800,99,1442,99.4,csv_upload_test
+Tastatură mecanică compactă K87,Gaming,KeyLab,289.00,172.00,11,4.5,460,14300,1900,870,65,3.5,23.2,black_friday,289.00,RON,932,99,11558,99.0,csv_upload_test
+Power bank 20000mAh FastCharge,Electronice,Voltix,119.99,59.00,14,4.6,980,30800,6100,3560,420,7.1,38.2,vara,119.99,RON,3560,99,14002,99.8,csv_upload_test
+Rucsac laptop antifurt UrbanPack,Accesorii,UrbanGo,179.90,99.00,5,4.4,350,11200,1250,560,110,3.0,19.8,toamna,179.90,RON,560,99,5135,99.5,csv_upload_test
+Sticlă termică inox 750ml,Lifestyle,EcoTherm,79.99,38.00,20,4.8,1200,33500,7200,4300,600,8.0,40.6,iarna,79.99,RON,4803,99,12073,99.7,csv_upload_test
+Organizator cabluri birou,Birou,DeskPro,39.99,18.50,10,4.3,220,6400,740,310,260,2.4,17.8,tot_anul,39.99,RON,310,91.9,11550,96.4,csv_upload_test
+Suport laptop ajustabil aluminiu,Birou,DeskPro,139.99,74.00,12,4.7,670,19800,3650,1900,180,5.8,34.9,tot_anul,139.99,RON,2098,99,14333,99.2,csv_upload_test
+Irigator bucal portabil AquaSmile,Îngrijire personală,AquaSmile,229.99,137.00,8,4.5,510,15100,2150,970,70,3.9,25.1,tot_anul,229.99,RON,1072,99,1084,96.2,csv_upload_test
+Periuță electrică SonicWhite,Îngrijire personală,SonicWhite,189.99,108.00,13,4.6,830,24400,4800,2510,140,6.3,31.4,tot_anul,189.99,RON,2510,99,6754,97.8,csv_upload_test
+Umidificator aromaterapie ZenAir,Smart Home,ZenAir,159.99,91.00,10,4.4,390,12700,1600,720,85,3.2,22.6,iarna,159.99,RON,720,99,2707,99.6,csv_upload_test
+Bandă LED RGB 10m,Smart Home,Lightix,89.99,39.50,22,4.7,1440,38200,8600,5200,700,8.5,43.9,black_friday,89.99,RON,5965,99,5943,99.1,csv_upload_test
+Difuzor Bluetooth MiniBoom,Audio,SoundMax,99.99,52.00,10,4.3,310,10200,1180,470,130,2.8,18.1,vara,99.99,RON,530,96.7,6474,99.6,csv_upload_test
+Cameră auto dashboard 4K,Auto,RoadSafe,349.99,224.00,6,4.5,440,13900,1700,760,55,3.1,20.7,vara,349.99,RON,813,99,3640,96.7,csv_upload_test
+Set lumini bicicletă USB,Sport,BikeLite,69.99,31.00,15,4.6,580,17100,2800,1330,240,4.7,35.0,primavara,69.99,RON,1330,99,14328,98.6,csv_upload_test
+Ceas perete vintage,Decorațiuni,HomeStyle,84.99,58.00,5,4.0,75,2900,190,65,95,1.3,9.4,tot_anul,84.99,RON,74,78.6,9259,98.3,csv_upload_test
+Husă telefon model vechi A12,Accesorii,CaseLine,24.99,16.00,0,3.9,42,1800,90,30,500,0.9,7.8,tot_anul,24.99,RON,31,73.7,8474,96.8,csv_upload_test
+Suport pahare auto universal,Auto,RoadSafe,34.99,23.50,8,4.1,110,3600,240,95,170,1.6,11.2,vara,34.99,RON,95,82.4,9140,98.5,csv_upload_test
+Cablu încărcare microUSB 1m,Electronice,Voltix,19.99,12.00,0,4.0,180,5200,350,120,900,1.5,12.0,tot_anul,19.99,RON,120,83.3,11995,99.2,csv_upload_test
+Mini ventilator birou USB,Birou,CoolAir,59.99,36.00,5,4.2,160,6100,460,170,140,1.9,14.8,vara,59.99,RON,185,87.3,7127,97.7,csv_upload_test
+Suport telefon mașină magnetic,Auto,RoadSafe,49.99,27.00,10,4.3,290,8200,800,350,210,2.7,21.3,tot_anul,49.99,RON,350,95.2,7275,99.1,csv_upload_test
+Cântar digital bucătărie,Bucătărie,KitchenIQ,64.99,36.50,7,4.4,250,7600,690,280,115,2.2,18.8,tot_anul,64.99,RON,280,93.4,14197,98.0,csv_upload_test
+Mixer lapte electric,Bucătărie,KitchenIQ,44.99,23.00,12,4.5,390,12100,1550,720,150,4.0,31.2,iarna,44.99,RON,807,99,9525,96.5,csv_upload_test
+Set recipiente meal prep,Bucătărie,FitBox,89.99,49.00,15,4.6,640,18300,3000,1450,260,5.1,29.5,ianuarie,89.99,RON,1572,99,10176,98.7,csv_upload_test
+Role masaj fitness,Sport,FitZone,109.99,72.00,6,4.1,95,4100,310,105,70,1.8,10.5,ianuarie,109.99,RON,118,83.3,6056,96.1,csv_upload_test
+Elastic fitness set 5 buc,Sport,FitZone,74.99,35.00,18,4.7,720,20500,3900,1900,330,6.0,36.1,ianuarie,74.99,RON,1900,99,3472,98.3,csv_upload_test
+Mini blender portabil USB,Bucătărie,BlendGo,139.99,86.00,9,4.3,270,9800,1100,460,90,2.8,19.2,vara,139.99,RON,460,95.8,14612,97.9,csv_upload_test
+Stație meteo digitală,Smart Home,MeteoIQ,199.99,126.00,5,4.2,190,6800,620,230,45,2.0,15.7,iarna,199.99,RON,238,88.7,7661,97.4,csv_upload_test
+Termometru smart cameră copil,Smart Home,BabySafe,149.99,79.00,11,4.6,520,15600,2500,1180,75,4.5,30.8,iarna,149.99,RON,1264,99,1551,98.6,csv_upload_test
+Monitor bebeluși audio-video,Baby,BabySafe,499.99,340.00,4,4.4,210,7500,690,260,28,2.1,13.9,tot_anul,499.99,RON,279,92.2,11219,96.2,csv_upload_test
+Kit curățare laptop 7 în 1,Birou,DeskPro,54.99,24.50,16,4.5,430,13400,2100,980,280,4.3,34.1,tot_anul,54.99,RON,980,99,5257,98.2,csv_upload_test
+Webcam Full HD cu microfon,Electronice,VisionTech,159.99,102.00,7,4.1,130,5000,410,150,60,1.7,11.3,toamna,159.99,RON,156,84.2,1924,98.0,csv_upload_test
+Hub USB-C 7 porturi,Electronice,Voltix,189.99,104.00,12,4.6,610,17600,2900,1360,120,4.8,31.5,tot_anul,189.99,RON,1410,99,13556,99.2,csv_upload_test
+Adaptor priză universal travel,Travel,TravelGo,99.99,58.00,10,4.3,240,7200,740,300,180,2.6,20.1,vara,99.99,RON,300,93.4,2714,99.6,csv_upload_test
+Cântar bagaje digital,Travel,TravelGo,49.99,22.00,15,4.6,540,16400,2600,1210,240,4.6,35.7,vara,49.99,RON,1210,99,13551,98.9,csv_upload_test

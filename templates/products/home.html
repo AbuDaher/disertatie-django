@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Acasă{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="page-eyebrow">Platformă decizională AI</div>
+  <h1>Identifică produse promițătoare și evaluează dacă merită investiția.</h1>
+  <p class="page-subtitle">
+    Aplicația combină căutarea oportunităților comerciale, modele de Machine Learning,
+    explicații predictive și analiză de profitabilitate pentru a susține deciziile de business.
+  </p>
+  <div class="actions">
+    <a class="btn" href="/oportunitati/">Caută oportunități comerciale</a>
+    <a class="btn btn-secondary" href="/produse/adauga/">Evaluează manual un produs</a>
+  </div>
+</section>
+
+<div class="feature-list">
+  <div class="feature-card">
+    <div class="feature-icon">1</div>
+    <h3>Descoperire produse</h3>
+    <p class="card-subtitle">Caută produse candidate pe baza preferințelor utilizatorului și a indicatorilor comerciali disponibili.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">2</div>
+    <h3>Predicție ML</h3>
+    <p class="card-subtitle">Estimează probabilitatea de succes comercial și prețul recomandat prin modele predictive.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">3</div>
+    <h3>Decizie investițională</h3>
+    <p class="card-subtitle">Calculează profitul, marja și randamentul estimat pentru a decide dacă investiția este justificată.</p>
+  </div>
+</div>
+{% endblock %}

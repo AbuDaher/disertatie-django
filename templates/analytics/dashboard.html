@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Tablou de bord BI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Business Intelligence</div>
+  <h1>Tablou de bord BI</h1>
+  <p class="page-subtitle">
+    Alege o verificare pentru a vedea raportul BI dedicat. Datele nu mai sunt amestecate între uploaduri, căutări și evaluări manuale.
+  </p>
+</div>
+
+<div class="card">
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Verificări totale</div>
+      <div class="kpi-value">{{ summary.total_runs }}</div>
+      <div class="kpi-note">Rulări distincte</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Verificări finalizate</div>
+      <div class="kpi-value">{{ summary.completed_runs }}</div>
+      <div class="kpi-note">Importuri / evaluări valide</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Produse analizate</div>
+      <div class="kpi-value">{{ summary.total_products }}</div>
+      <div class="kpi-note">Total în verificări</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Predicții generate</div>
+      <div class="kpi-value">{{ summary.total_predictions }}</div>
+      <div class="kpi-note">Total ML</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Verificări disponibile</h2>
+      <p class="card-subtitle">Deschide raportul unei verificări pentru grafice, indicatori și topuri relevante managerial.</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Verificare</th>
+          <th>Sursă</th>
+          <th>Produse</th>
+          <th>Predicții</th>
+          <th>Investiții</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th>Raport</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for item in analysis_runs %}
+        <tr>
+          <td><strong>{{ item.title }}</strong></td>
+          <td>{{ item.get_source_type_display }}</td>
+          <td>{{ item.products_count }}</td>
+          <td>{{ item.predictions_count }}</td>
+          <td>{{ item.investment_count }}</td>
+          <td><span class="badge badge-info">{{ item.get_status_display }}</span></td>
+          <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+          <td><a class="btn btn-ghost" href="/analize/verificare/{{ item.id }}/">Vezi raport</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="8" class="empty-state">
+            Nu există încă verificări. Încarcă un CSV sau evaluează un produs pentru a genera primul raport BI.
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

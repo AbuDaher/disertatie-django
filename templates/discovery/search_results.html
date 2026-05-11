@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Rezultate oportunități{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-eyebrow">Rezultate oportunități</div>
+  <h1>Rezultate căutare: {{ search_query.keyword }}</h1>
+  <p class="page-subtitle">
+    Produse ordonate după scorul comercial calculat pe baza indicatorilor disponibili.
+  </p>
+</div>
+
+<div class="card">
+  {% if search_query.status_message %}<div class="alert alert-info">{{ search_query.status_message }}</div>{% endif %}
+  {% include 'discovery/partials_results_table.html' with discovered_products=discovered_products %}
+</div>
+{% endblock %}

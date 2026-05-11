@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Rezultat predicție: {{ product.name }}</h1>
+{% if run %}
+<div class="result">
+  <h2>{{ run.success_label }}</h2>
+  <p>Probabilitate succes: <strong>{{ run.success_probability|floatformat:2 }}</strong></p>
+  <p>Preț recomandat: <strong>{{ run.recommended_price }}</strong></p>
+</div>
+<h2>Explicație model predictiv</h2>
+<table>
+  <tr><th>Factor</th><th>Contribuție</th></tr>
+  {% for key, value in explanation_items %}
+    <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Nu există predicție pentru acest produs.</p>
+{% endif %}
+{% endblock %}

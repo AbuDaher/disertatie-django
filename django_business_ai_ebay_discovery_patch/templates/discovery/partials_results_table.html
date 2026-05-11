@@ -1,0 +1,32 @@
+<table>
+  <tr>
+    <th>Produs</th>
+    <th>Sursă</th>
+    <th>Preț</th>
+    <th>Rating</th>
+    <th>Recenzii</th>
+    <th>Comenzi estimate</th>
+    <th>Trend</th>
+    <th>Scor comercial</th>
+    <th>Acțiune</th>
+  </tr>
+  {% for product in discovered_products %}
+    <tr>
+      <td>
+        <strong>{{ product.title }}</strong><br>
+        <span class="muted">{{ product.category }}{% if product.brand %} · {{ product.brand }}{% endif %}</span>
+        {% if product.item_url %}<br><a href="{{ product.item_url }}" target="_blank">Vezi pe platformă</a>{% endif %}
+      </td>
+      <td>{{ product.source }}</td>
+      <td>{{ product.price }} {{ product.currency }}</td>
+      <td>{{ product.rating|floatformat:1 }}</td>
+      <td>{{ product.review_count }}</td>
+      <td>{{ product.estimated_orders }}</td>
+      <td>{{ product.trend_score|floatformat:0 }}</td>
+      <td><strong>{{ product.commercial_score|floatformat:2 }}</strong></td>
+      <td><a class="button" href="/oportunitati/analizeaza/{{ product.id }}/">Analizează investiția</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9">Nu au fost găsite produse care respectă criteriile.</td></tr>
+  {% endfor %}
+</table>

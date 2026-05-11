@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block title %}Performanța modelelor ML{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-eyebrow">Analiză tehnică</div>
+  <h1>Performanța modelelor Machine Learning</h1>
+  <p class="page-subtitle">
+    Comparație completă a modelelor antrenate, metrici de evaluare cu cross-validare {{ cv_folds }}-fold și importanța variabilelor prin {{ xai_method|default:"feature_importances_" }}.
+  </p>
+</div>
+
+{% if dataset_info %}
+<div class="card">
+  <div class="card-header">
+    <div><h2 class="card-title">Dataset de antrenare</h2></div>
+    <span class="badge badge-info">{{ dataset_info.rows }} rânduri</span>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Rânduri totale</div>
+      <div class="kpi-value">{{ dataset_info.rows }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rată succes</div>
+      <div class="kpi-value">{{ dataset_info.success_rate|floatformat:2 }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Preț mediu</div>
+      <div class="kpi-value">{{ dataset_info.avg_price }} lei</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Preț competitiv mediu</div>
+      <div class="kpi-value">{{ dataset_info.avg_competitive_price }} lei</div>
+    </div>
+  </div>
+  {% if dataset_info.categories %}
+  <p class="card-subtitle" style="margin-top:12px;">
+    <strong>Categorii:</strong> {{ dataset_info.categories|join:", " }}
+  </p>
+  {% endif %}
+  {% if engineered_features %}
+  <p class="card-subtitle">
+    <strong>Caracteristici derivate (feature engineering):</strong> {{ engineered_features|join:", " }}
+  </p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if not classifier_rows and not regressor_rows %}
+<div class="card">
+  <div class="empty-state">
+    <p>Nu există metrici disponibile. Rulează antrenarea modelelor:</p>
+    <code style="display:block;margin-top:10px;padding:12px;background:#f1f5f9;border-radius:8px;">python ml/train_models.py</code>
+  </div>
+</div>
+{% endif %}
+
+{# ─── CLASIFICARE ─────────────────────────────────────────────────────────── #}
+{% if classifier_rows %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Modele de clasificare — Potențial de succes comercial</h2>
+      <p class="card-subtitle">Cross-validare {{ cv_folds }}-fold stratificată. Modelul selectat: <strong>{{ selected_classifier }}</strong>.</p>
+    </div>
+    <span class="badge badge-success">{{ selected_classifier }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Accuracy</th>
+          <th>Precision</th>
+          <th>Recall</th>
+          <th>F1</th>
+          <th>AUC-ROC</th>
+          <th>CV F1 (±std)</th>
+          <th>CV AUC (±std)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in classifier_rows %}
+        <tr {% if row.model == selected_classifier %}style="background:#f0fdf4;font-weight:600;"{% endif %}>
+          <td>{{ row.model }}</td>
+          <td>{{ row.accuracy|floatformat:4 }}</td>
+          <td>{{ row.precision|floatformat:4 }}</td>
+          <td>{{ row.recall|floatformat:4 }}</td>
+          <td>{{ row.f1|floatformat:4 }}</td>
+          <td>{% if row.roc_auc %}{{ row.roc_auc|floatformat:4 }}{% else %}—{% endif %}</td>
+          <td>
+            {% if row.cv_f1_mean %}
+              {{ row.cv_f1_mean|floatformat:4 }} ± {{ row.cv_f1_std|floatformat:4 }}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if row.cv_auc_mean %}
+              {{ row.cv_auc_mean|floatformat:4 }} ± {{ row.cv_auc_std|floatformat:4 }}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if row.model == selected_classifier %}
+              <span class="badge badge-success">Selectat</span>
+            {% else %}
+              <span class="badge">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="card-subtitle" style="margin-top:12px;">
+    Criteriu de selecție: F1-score maxim pe setul de test, confirmat de AUC-ROC și CV F1 mediu.
+    Accuracy poate fi înșelătoare pentru seturi dezechilibrate — F1 și AUC-ROC sunt indicatorii principali.
+  </p>
+</div>
+{% endif %}
+
+{# ─── REGRESIE ────────────────────────────────────────────────────────────── #}
+{% if regressor_rows %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Modele de regresie — Prețul competitiv recomandat</h2>
+      <p class="card-subtitle">Cross-validare {{ cv_folds }}-fold. Modelul selectat: <strong>{{ selected_regressor }}</strong>.</p>
+    </div>
+    <span class="badge badge-info">{{ selected_regressor }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>MAE</th>
+          <th>RMSE</th>
+          <th>R²</th>
+          <th>CV R² (±std)</th>
+          <th>CV RMSE (±std)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in regressor_rows %}
+        <tr {% if row.model == selected_regressor %}style="background:#eff6ff;font-weight:600;"{% endif %}>
+          <td>{{ row.model }}</td>
+          <td>{{ row.mae|floatformat:4 }}</td>
+          <td>{{ row.rmse|floatformat:4 }}</td>
+          <td>{{ row.r2|floatformat:4 }}</td>
+          <td>
+            {% if row.cv_r2_mean %}
+              {{ row.cv_r2_mean|floatformat:4 }} ± {{ row.cv_r2_std|floatformat:4 }}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if row.cv_rmse_mean %}
+              {{ row.cv_rmse_mean|floatformat:4 }} ± {{ row.cv_rmse_std|floatformat:4 }}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if row.model == selected_regressor %}
+              <span class="badge badge-info">Selectat</span>
+            {% else %}
+              <span class="badge">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="card-subtitle" style="margin-top:12px;">
+    Criteriu de selecție: R² maxim, RMSE minim, confirmate prin cross-validare.
+    R² aproape de 1.0 indică că modelul explică bine variația prețului competitiv.
+  </p>
+</div>
+{% endif %}
+
+{# ─── IMPORTANȚĂ VARIABILE ────────────────────────────────────────────────── #}
+{% if classifier_importance or regressor_importance %}
+<div class="grid grid-2">
+
+  {% if classifier_importance %}
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Importanța variabilelor — Clasificare</h2>
+        <p class="card-subtitle">{{ xai_method|default:"feature_importances_" }} — model {{ selected_classifier }}</p>
+      </div>
+    </div>
+    {% for row in classifier_importance %}
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:500;color:#334155;">{{ row.feature }}</span>
+        <span style="font-size:12px;color:#64748b;">{{ row.importance|floatformat:4 }}</span>
+      </div>
+      <div style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+        <div style="height:100%;width:{{ row.percent }}%;background:linear-gradient(90deg,#4f46e5,#06b6d4);border-radius:999px;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if regressor_importance %}
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Importanța variabilelor — Regresie</h2>
+        <p class="card-subtitle">{{ xai_method|default:"feature_importances_" }} — model {{ selected_regressor }}</p>
+      </div>
+    </div>
+    {% for row in regressor_importance %}
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:500;color:#334155;">{{ row.feature }}</span>
+        <span style="font-size:12px;color:#64748b;">{{ row.importance|floatformat:4 }}</span>
+      </div>
+      <div style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+        <div style="height:100%;width:{{ row.percent }}%;background:linear-gradient(90deg,#0ea5e9,#16a34a);border-radius:999px;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <div><h2 class="card-title">Interpretarea metricilor</h2></div>
+  </div>
+  <div class="grid grid-2">
+    <div>
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:8px;">Clasificare</h3>
+      <ul style="font-size:13px;color:#475569;line-height:1.8;list-style:disc;padding-left:18px;">
+        <li><strong>Accuracy</strong> — proporția predicțiilor corecte din total.</li>
+        <li><strong>Precision</strong> — din produsele prezise ca succes, câte chiar sunt succes.</li>
+        <li><strong>Recall</strong> — din toate produsele cu succes real, câte au fost identificate.</li>
+        <li><strong>F1</strong> — media armonică Precision/Recall; indicatorul principal pentru seturi dezechilibrate.</li>
+        <li><strong>AUC-ROC</strong> — capacitatea de separare a claselor la orice prag; 1.0 = perfect, 0.5 = aleatoriu.</li>
+        <li><strong>CV F1</strong> — F1 mediu din cross-validare; confirmă că modelul generalizează.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:8px;">Regresie</h3>
+      <ul style="font-size:13px;color:#475569;line-height:1.8;list-style:disc;padding-left:18px;">
+        <li><strong>MAE</strong> — eroarea medie absolută; în aceeași unitate ca prețul (lei).</li>
+        <li><strong>RMSE</strong> — similar MAE, dar penalizează mai puternic erorile mari.</li>
+        <li><strong>R²</strong> — proporția variației prețului explicată de model; aproape de 1.0 = bun.</li>
+        <li><strong>CV R²</strong> — R² mediu din cross-validare; validează stabilitatea modelului.</li>
+        <li><strong>Feature importance</strong> — influența fiecărei variabile asupra prețului recomandat.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <a class="btn btn-secondary" href="/analize/">← Tablou de bord</a>
+  <a class="btn btn-ghost" href="/predictii/istoric/">Istoric predicții</a>
+</div>
+
+{% endblock %}
