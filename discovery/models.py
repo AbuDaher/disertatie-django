@@ -5,8 +5,8 @@ class SearchQuery(models.Model):
     SOURCE_API = 'api'
     SOURCE_CSV = 'csv'
     SOURCE_CHOICES = [
-        (SOURCE_API, 'eBay API'),
-        (SOURCE_CSV, 'CSV fallback'),
+        (SOURCE_API, 'Amazon API (date reale)'),
+        (SOURCE_CSV, 'CSV fallback (demo)'),
     ]
 
     keyword = models.CharField(max_length=200)
@@ -15,7 +15,7 @@ class SearchQuery(models.Model):
     min_rating = models.FloatField(default=0)
     min_reviews = models.PositiveIntegerField(default=0)
     top_n = models.PositiveIntegerField(default=5)
-    data_source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_CSV)
+    data_source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_API)
     used_source = models.CharField(max_length=40, blank=True)
     status_message = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -31,15 +31,15 @@ class DiscoveredProduct(models.Model):
     search_query = models.ForeignKey(SearchQuery, on_delete=models.CASCADE, related_name='products')
     linked_product = models.ForeignKey('products.Product', on_delete=models.SET_NULL, null=True, blank=True)
 
-    source = models.CharField(max_length=40, default='csv')
+    source = models.CharField(max_length=40, default='amazon_api')
     external_id = models.CharField(max_length=160, blank=True)
     title = models.CharField(max_length=300)
     category = models.CharField(max_length=120, blank=True)
     brand = models.CharField(max_length=120, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=10, default='USD')
-    item_url = models.URLField(blank=True)
-    image_url = models.URLField(blank=True)
+    item_url = models.URLField(blank=True, max_length=500)
+    image_url = models.URLField(blank=True, max_length=500)
     condition = models.CharField(max_length=120, blank=True)
 
     seller_username = models.CharField(max_length=160, blank=True)

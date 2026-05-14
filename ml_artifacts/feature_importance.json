@@ -1,134 +1,134 @@
 {
   "classifier": [
     {
-      "feature": "season",
-      "importance": 0.385201
-    },
-    {
-      "feature": "category",
-      "importance": 0.122242
-    },
-    {
-      "feature": "add_to_cart",
-      "importance": 0.091356
-    },
-    {
-      "feature": "demand_index",
-      "importance": 0.085056
-    },
-    {
-      "feature": "views",
-      "importance": 0.079172
-    },
-    {
       "feature": "review_count",
-      "importance": 0.05328
-    },
-    {
-      "feature": "margin_percent",
-      "importance": 0.04389
+      "importance": 0.314531
     },
     {
       "feature": "sales_volume",
-      "importance": 0.031222
-    },
-    {
-      "feature": "rating",
-      "importance": 0.02296
-    },
-    {
-      "feature": "price_to_cost_ratio",
-      "importance": 0.021931
-    },
-    {
-      "feature": "current_price",
-      "importance": 0.013203
-    },
-    {
-      "feature": "cost",
-      "importance": 0.011839
-    },
-    {
-      "feature": "engagement_rate",
-      "importance": 0.011838
+      "importance": 0.104039
     },
     {
       "feature": "discount_percent",
-      "importance": 0.009928
+      "importance": 0.097455
     },
     {
-      "feature": "stock_level",
-      "importance": 0.009749
+      "feature": "demand_index",
+      "importance": 0.092187
+    },
+    {
+      "feature": "views",
+      "importance": 0.076978
+    },
+    {
+      "feature": "add_to_cart",
+      "importance": 0.069257
+    },
+    {
+      "feature": "engagement_rate",
+      "importance": 0.037917
     },
     {
       "feature": "conversion_rate",
-      "importance": 0.007133
+      "importance": 0.033836
+    },
+    {
+      "feature": "price_to_cost_ratio",
+      "importance": 0.027025
+    },
+    {
+      "feature": "margin_percent",
+      "importance": 0.02666
+    },
+    {
+      "feature": "cost",
+      "importance": 0.022545
+    },
+    {
+      "feature": "current_price",
+      "importance": 0.021199
+    },
+    {
+      "feature": "rating",
+      "importance": 0.020939
+    },
+    {
+      "feature": "category",
+      "importance": 0.019973
+    },
+    {
+      "feature": "stock_level",
+      "importance": 0.019934
+    },
+    {
+      "feature": "season",
+      "importance": 0.015526
     }
   ],
   "regressor": [
     {
       "feature": "current_price",
-      "importance": 0.794763
-    },
-    {
-      "feature": "discount_percent",
-      "importance": 0.07512
-    },
-    {
-      "feature": "cost",
-      "importance": 0.057297
-    },
-    {
-      "feature": "season",
-      "importance": 0.01703
-    },
-    {
-      "feature": "views",
-      "importance": 0.0147
-    },
-    {
-      "feature": "margin_percent",
-      "importance": 0.007293
-    },
-    {
-      "feature": "demand_index",
-      "importance": 0.006058
-    },
-    {
-      "feature": "add_to_cart",
-      "importance": 0.004959
-    },
-    {
-      "feature": "rating",
-      "importance": 0.004597
-    },
-    {
-      "feature": "sales_volume",
-      "importance": 0.004378
-    },
-    {
-      "feature": "review_count",
-      "importance": 0.003505
-    },
-    {
-      "feature": "stock_level",
-      "importance": 0.003311
-    },
-    {
-      "feature": "conversion_rate",
-      "importance": 0.002041
-    },
-    {
-      "feature": "price_to_cost_ratio",
-      "importance": 0.001825
-    },
-    {
-      "feature": "engagement_rate",
-      "importance": 0.001602
+      "importance": 0.924196
     },
     {
       "feature": "category",
-      "importance": 0.001521
+      "importance": 0.027747
+    },
+    {
+      "feature": "cost",
+      "importance": 0.011944
+    },
+    {
+      "feature": "views",
+      "importance": 0.009754
+    },
+    {
+      "feature": "add_to_cart",
+      "importance": 0.009662
+    },
+    {
+      "feature": "season",
+      "importance": 0.007459
+    },
+    {
+      "feature": "conversion_rate",
+      "importance": 0.001584
+    },
+    {
+      "feature": "discount_percent",
+      "importance": 0.001478
+    },
+    {
+      "feature": "price_to_cost_ratio",
+      "importance": 0.0013
+    },
+    {
+      "feature": "demand_index",
+      "importance": 0.001222
+    },
+    {
+      "feature": "review_count",
+      "importance": 0.00089
+    },
+    {
+      "feature": "engagement_rate",
+      "importance": 0.000722
+    },
+    {
+      "feature": "sales_volume",
+      "importance": 0.00067
+    },
+    {
+      "feature": "rating",
+      "importance": 0.000493
+    },
+    {
+      "feature": "margin_percent",
+      "importance": 0.000456
+    },
+    {
+      "feature": "stock_level",
+      "importance": 0.000423
     }
   ],
   "method": "SHAP TreeExplainer (sau fallback feature_importances_)"

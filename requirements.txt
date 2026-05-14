@@ -1,4 +1,4 @@
-Django==6.0.4
+Django==5.2
 pandas>=2.2.0
 numpy>=1.26.0
 scikit-learn>=1.4.0
@@ -7,3 +7,4 @@ shap>=0.44.0
 matplotlib>=3.8.0
 python-dotenv>=1.0.0
 requests>=2.31.0
+pytrends>=4.9.0

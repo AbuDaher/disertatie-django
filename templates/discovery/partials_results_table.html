@@ -1,37 +1,165 @@
-<div class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>Produs</th>
-        <th>Sursă</th>
-        <th>Preț</th>
-        <th>Rating</th>
-        <th>Recenzii</th>
-        <th>Comenzi estimate</th>
-        <th>Trend</th>
-        <th>Scor comercial</th>
-        <th>Acțiune</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for product in discovered_products %}
-      <tr>
-        <td>
-          <strong>{{ product.title }}</strong>
-          {% if product.brand %}<div class="kpi-note">Brand: {{ product.brand }}</div>{% endif %}
-        </td>
-        <td><span class="badge badge-info">{{ product.source }}</span></td>
-        <td>{{ product.price }} {{ product.currency }}</td>
-        <td>{{ product.rating|floatformat:1 }}</td>
-        <td>{{ product.review_count }}</td>
-        <td>{{ product.estimated_orders }}</td>
-        <td>{{ product.trend_score|floatformat:1 }}</td>
-        <td><strong>{{ product.commercial_score|floatformat:2 }}</strong></td>
-        <td><a class="btn" href="/oportunitati/analizeaza/{{ product.id }}/">Analizează investiția</a></td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="9" class="empty-state">Nu au fost găsite produse care respectă criteriile.</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<style>
+.opp-card {
+  border:1px solid var(--border); border-radius:18px;
+  padding:20px; background:#fff; margin-bottom:16px;
+  display:grid; grid-template-columns:1fr 88px;
+  gap:16px; align-items:start;
+  transition:box-shadow .2s,transform .2s;
+}
+.opp-card:hover { box-shadow:var(--shadow); transform:translateY(-2px); }
+
+.opp-ring {
+  width:80px; height:80px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; border:4px solid; flex-shrink:0;
+}
+.opp-ring .score-val  { font-size:20px; font-weight:950; line-height:1; }
+.opp-ring .score-lbl  { font-size:9px;  font-weight:700; letter-spacing:.04em; margin-top:2px; }
+
+.opp-score-excellent { border-color:#16a34a; color:#16a34a; background:#f0fdf4; }
+.opp-score-good      { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+.opp-score-moderate  { border-color:#f59e0b; color:#f59e0b; background:#fffbeb; }
+.opp-score-low       { border-color:#94a3b8; color:#94a3b8; background:#f8fafc; }
+
+.metric-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  background:#f8fafc; border:1px solid #e2e8f0;
+  border-radius:999px; padding:4px 10px;
+  font-size:12px; font-weight:800; color:#334155; white-space:nowrap;
+}
+.metric-pill .val { color:#1e293b; font-size:13px; }
+.stars { color:#f59e0b; }
+
+@media(max-width:600px){
+  .opp-card { grid-template-columns:1fr; }
+}
+</style>
+
+{% for product in discovered_products %}
+{% with raw=product.raw_data score=product.commercial_score %}
+
+{% with opp_class=raw.opportunity_score_class|default:"" opp_label=raw.opportunity_label|default:"" %}
+<div class="opp-card">
+
+  {# ─── Conținut principal ──────────────────────────────────────────────── #}
+  <div>
+    {# Titlu + badge #}
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:800;color:#1e293b;line-height:1.35;">
+          {{ product.title|truncatechars:90 }}
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px;">
+          {% if product.brand %}{{ product.brand }} · {% endif %}{{ product.category }}
+          {% if raw.season and raw.season != 'normal' %}
+            · <span style="color:var(--primary-dark);">sezon: {{ raw.season }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if opp_label %}
+        <span class="badge
+          {% if score >= 70 %}badge-success
+          {% elif score >= 50 %}badge-info
+          {% elif score >= 30 %}badge-warning
+          {% else %}badge{% endif %}">
+          {{ opp_label }}
+        </span>
+      {% endif %}
+    </div>
+
+    {# Metrici cheie #}
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;">
+
+      <span class="metric-pill">
+        💵 <span class="val">{{ product.price }} {{ product.currency }}</span>
+      </span>
+
+      {% if product.rating %}
+      <span class="metric-pill">
+        <span class="stars">★</span>
+        <span class="val">{{ product.rating|floatformat:1 }}</span>
+        <span style="color:var(--muted);">/5</span>
+      </span>
+      {% endif %}
+
+      {% if product.review_count %}
+      <span class="metric-pill">
+        💬 <span class="val">{{ product.review_count }}</span>
+        <span style="color:var(--muted);">recenzii</span>
+      </span>
+      {% endif %}
+
+      {% if product.estimated_orders %}
+      <span class="metric-pill">
+        📦 <span class="val">~{{ product.estimated_orders }}</span>
+        <span style="color:var(--muted);">vânz/lună</span>
+      </span>
+      {% endif %}
+
+      {% if raw.discount_percent and raw.discount_percent > 0 %}
+      <span class="metric-pill" style="color:#16a34a;border-color:#bbf7d0;background:#f0fdf4;">
+        🏷 <span class="val">-{{ raw.discount_percent|floatformat:0 }}%</span>
+      </span>
+      {% endif %}
+
+      {% if product.trend_score and product.trend_score != 50 %}
+      <span class="metric-pill">
+        📈 <span class="val">{{ product.trend_score|floatformat:0 }}</span>
+        <span style="color:var(--muted);">trend</span>
+      </span>
+      {% endif %}
+
+    </div>
+
+    {# Acțiuni #}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <a class="btn" href="/oportunitati/analizeaza/{{ product.id }}/">
+        Fișă produs →
+      </a>
+      {% if product.item_url %}
+        {% if product.source == 'aliexpress_api' %}
+          <a class="btn btn-ghost" href="{{ product.item_url }}" target="_blank" rel="noopener">
+            Vezi pe AliExpress ↗
+          </a>
+        {% elif product.source == 'amazon_api' %}
+          <a class="btn btn-ghost" href="{{ product.item_url }}" target="_blank" rel="noopener">
+            Vezi pe Amazon ↗
+          </a>
+        {% elif product.source == 'ebay_api' %}
+          <a class="btn btn-ghost" href="{{ product.item_url }}" target="_blank" rel="noopener">
+            Vezi pe eBay ↗
+          </a>
+        {% else %}
+          <a class="btn btn-ghost" href="{{ product.item_url }}" target="_blank" rel="noopener">
+            Vezi produs ↗
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {# ─── Scor circular ───────────────────────────────────────────────────── #}
+  <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+    <div class="opp-ring
+      {% if score >= 70 %}opp-score-excellent
+      {% elif score >= 50 %}opp-score-good
+      {% elif score >= 30 %}opp-score-moderate
+      {% else %}opp-score-low{% endif %}">
+      <span class="score-val">{{ score|floatformat:0 }}</span>
+      <span class="score-lbl">/ 100</span>
+    </div>
+    <span style="font-size:10px;color:var(--muted);text-align:center;font-weight:700;max-width:82px;">
+      Investor Score
+    </span>
+  </div>
+
 </div>
+{% endwith %}
+{% endwith %}
+{% empty %}
+<div class="empty-state">
+  Nu au fost găsite produse care să respecte criteriile selectate.<br>
+  Încearcă să relaxezi filtrele sau lasă câmpurile goale pentru descoperire automată.
+</div>
+{% endfor %}

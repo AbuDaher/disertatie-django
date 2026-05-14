@@ -1,244 +1,460 @@
 {% extends 'base.html' %}
-{% block title %}Raport BI verificare{% endblock %}
+{% block title %}{% if summary.total_predictions == 1 %}Fișă produs{% else %}Raport lot{% endif %}{% endblock %}
 {% block content %}
 <style>
-  .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-  .donut-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
-  .donut { width: 210px; height: 210px; border-radius: 50%; position: relative; box-shadow: 0 18px 45px rgba(15,23,42,.08); }
-  .donut::after { content: ''; position: absolute; inset: 46px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #e2e8f0; }
-  .legend { display: grid; gap: 10px; min-width: 260px; }
-  .legend-row { display:flex; align-items:center; justify-content:space-between; gap:14px; color:#334155; }
-  .legend-left { display:flex; align-items:center; gap:9px; }
-  .legend-color { width:12px; height:12px; border-radius:999px; display:inline-block; }
-  .bar-list { display: grid; gap: 13px; }
-  .bar-row { display: grid; grid-template-columns: 190px 1fr 58px; align-items: center; gap: 12px; }
-  .bar-track { height: 13px; border-radius: 999px; overflow: hidden; background: #e2e8f0; }
-  .bar-fill { display:block; height:100%; border-radius:999px; background: linear-gradient(90deg, #4f46e5, #06b6d4); }
-  .management-note { padding: 18px; border-radius: 18px; background: linear-gradient(135deg, rgba(79,70,229,.10), rgba(6,182,212,.08)); border:1px solid #c7d2fe; color:#334155; }
-  .positive { color:#166534; font-weight:900; }
-  .negative { color:#991b1b; font-weight:900; }
-  @media(max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } .bar-row { grid-template-columns: 1fr; } }
+.bi-verdict{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:.9rem 1.4rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;}
+.bi-verdict-left{display:flex;align-items:center;gap:10px;}
+.bi-verdict-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.bi-verdict-lbl{font-size:12px;color:#64748b;}
+.bi-verdict-txt{font-size:15px;font-weight:600;color:#1e293b;}
+.bi-verdict-right{display:flex;gap:2rem;}
+.bi-vstat{text-align:right;}
+.bi-vstat-v{font-size:22px;font-weight:700;color:#1e293b;line-height:1.1;}
+.bi-vstat-l{font-size:11px;color:#64748b;margin-top:3px;}
+/* Fisa produs */
+.fp-hero{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;align-items:center;}
+.fp-ring{position:relative;width:80px;height:80px;flex-shrink:0;}
+.fp-ring svg{width:80px;height:80px;}
+.fp-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.fp-ring-score{font-size:20px;font-weight:700;color:#1e293b;line-height:1;}
+.fp-ring-lbl{font-size:9px;color:#64748b;margin-top:1px;}
+.fp-name{font-size:18px;font-weight:700;color:#1e293b;line-height:1.3;}
+.fp-cat{font-size:13px;color:#64748b;margin-top:3px;}
+.fp-decision{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;font-weight:700;padding:5px 14px;border-radius:20px;}
+.fp-buy{background:#dcfce7;color:#166534;}.fp-watch{background:#fef9c3;color:#854d0e;}.fp-skip{background:#fee2e2;color:#991b1b;}
+.fp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+.fp-metric{background:#f8fafc;border-radius:12px;padding:.85rem 1rem;}
+.fp-metric-val{font-size:20px;font-weight:700;color:#1e293b;line-height:1.1;}
+.fp-metric-lbl{font-size:11px;color:#64748b;margin-top:4px;}
+.fp-metric-sub{font-size:11px;margin-top:3px;}
+.pos-text{color:#16a34a;}.neg-text{color:#dc2626;}.neu-text{color:#64748b;}
+.fp-xai{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1.25rem;}
+.fp-xai-title{font-size:14px;font-weight:600;color:#1e293b;margin-bottom:.75rem;}
+.fp-xai-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.fp-xai-col-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem;}
+.xai-pos-lbl{color:#16a34a;}.xai-neg-lbl{color:#dc2626;}
+.xai-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.xai-bar-wrap{flex:1;height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden;}
+.xai-bar-fill{height:100%;border-radius:2px;}
+.xai-bar-pos{background:#1D9E75;}.xai-bar-neg{background:#E24B4A;}
+.xai-row-lbl{font-size:11px;color:#64748b;min-width:110px;}
+.xai-row-val{font-size:11px;font-weight:600;min-width:42px;text-align:right;}
+.xai-val-pos{color:#0F6E56;}.xai-val-neg{color:#A32D2D;}
+/* Lot */
+.opp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:1.25rem;}
+.opp-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1rem;}
+.opp-card.opp-top{border:2px solid #16a34a;}
+.opp-score-row{display:flex;align-items:center;gap:10px;margin-bottom:.7rem;}
+.opp-ring{position:relative;width:54px;height:54px;flex-shrink:0;}
+.opp-ring svg{width:54px;height:54px;}
+.opp-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#1e293b;}
+.opp-name{font-size:13px;font-weight:600;color:#1e293b;line-height:1.3;}
+.opp-cat{font-size:11px;color:#64748b;margin-top:2px;}
+.opp-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:5px;}
+.opp-b-top{background:#d1fae5;color:#065f46;}.opp-b-buy{background:#dcfce7;color:#166534;}
+.opp-b-watch{background:#fef9c3;color:#854d0e;}.opp-b-skip{background:#fee2e2;color:#991b1b;}
+.opp-metrics{border-top:1px solid #f1f5f9;padding-top:.6rem;margin-top:.5rem;display:grid;gap:4px;}
+.opp-metric{display:flex;justify-content:space-between;font-size:11px;color:#64748b;}
+.opp-metric span:last-child{font-weight:600;color:#334155;}
+.bi-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:1.25rem;}
+.bi-chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.1rem 1.25rem;}
+.bi-chart-ttl{font-size:14px;font-weight:600;color:#1e293b;margin-bottom:3px;}
+.bi-chart-sub{font-size:11px;color:#64748b;margin-bottom:.7rem;}
+.bi-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:#64748b;}
+.bi-legend-item{display:flex;align-items:center;gap:4px;}
+.bi-legend-sq{width:10px;height:10px;border-radius:2px;}
+.bi-legend-ci{width:10px;height:10px;border-radius:50%;}
+/* Decision table */
+.bi-dtable{width:100%;border-collapse:collapse;font-size:13px;}
+.bi-dtable th{text-align:left;font-size:11px;font-weight:600;color:#64748b;padding:7px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;}
+.bi-dtable td{padding:9px 10px;border-bottom:1px solid #f8fafc;color:#1e293b;vertical-align:middle;}
+.bi-dtable tr:last-child td{border-bottom:none;}
+.bi-dtable tr:hover td{background:#fafafa;}
+.bi-pill{display:inline-block;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.bi-pill-buy{background:#dcfce7;color:#166534;}.bi-pill-watch{background:#fef9c3;color:#854d0e;}.bi-pill-skip{background:#fee2e2;color:#991b1b;}
+.prog-bar{display:flex;align-items:center;gap:6px;}
+.prog-track{height:4px;background:#f1f5f9;border-radius:2px;width:64px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;}
+.bi-markup-pos{color:#16a34a;font-weight:600;}.bi-markup-neg{color:#dc2626;font-weight:600;}
+@media(max-width:900px){.bi-charts{grid-template-columns:1fr;}.fp-metrics{grid-template-columns:repeat(2,1fr);}.fp-xai-grid{grid-template-columns:1fr;}.bi-verdict-right{display:none;}}
+@media(max-width:600px){.opp-grid{grid-template-columns:1fr;}.fp-hero{grid-template-columns:1fr;}}
 </style>
 
 <div class="page-header">
-  <div class="page-eyebrow">Raport BI per verificare</div>
+  <div class="page-eyebrow">{% if summary.total_predictions == 1 %}Fișă produs{% else %}Raport BI per lot{% endif %}</div>
   <h1>{{ analysis_run.title }}</h1>
-  <p class="page-subtitle">
-    Sursă: {{ analysis_run.get_source_type_display }} · Data: {{ analysis_run.created_at|date:"d.m.Y H:i" }}
-    {% if analysis_run.source_file_name %} · Fișier: {{ analysis_run.source_file_name }}{% endif %}
-  </p>
+  <p class="page-subtitle">Sursă: {{ analysis_run.get_source_type_display }}  -  Data: {{ analysis_run.created_at|date:"d.m.Y H:i" }}</p>
 </div>
 
-<div class="card management-note">
-  <strong>Interpretare managerială:</strong>
-  această pagină raportează exclusiv rezultatele verificării curente. Indicatorii, topurile și graficele nu includ date din alte uploaduri sau analize anterioare.
-</div>
-
-<div class="card">
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Produse analizate</div>
-      <div class="kpi-value">{{ summary.total_predictions }}</div>
-      <div class="kpi-note">Predicții în verificare</div>
+<div class="bi-verdict">
+  <div class="bi-verdict-left">
+    <div class="bi-verdict-dot" style="background:{% if summary.high_potential > 0 %}#16a34a{% else %}#dc2626{% endif %};"></div>
+    <div>
+      <div class="bi-verdict-lbl">{{ analysis_run.created_at|date:"d.m.Y H:i" }}  -  {{ summary.total_predictions }} {% if summary.total_predictions == 1 %}produs analizat{% else %}produse analizate{% endif %}</div>
+      <div class="bi-verdict-txt">
+        {% if summary.total_predictions == 0 %}Nu există predicții în această verificare
+        {% elif buy_count == summary.total_predictions %}Toate produsele sunt recomandate pentru investiție
+        {% elif buy_count > 0 %}{{ buy_count }} din {{ summary.total_predictions }} produse recomandate pentru investiție
+        {% elif summary.high_potential > 0 %}{{ summary.high_potential }} produse cu potențial ML ridicat — necesită analiză suplimentară
+        {% else %}Nicio oportunitate confirmată în această verificare{% endif %}
+      </div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Potențial ridicat</div>
-      <div class="kpi-value">{{ summary.high_potential }}</div>
-      <div class="kpi-note">{{ summary.high_potential_percent|floatformat:1 }}% din verificare</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Probabilitate medie</div>
-      <div class="kpi-value">{{ summary.avg_success_probability|floatformat:2 }}</div>
-      <div class="kpi-note">Scor mediu ML</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Profit total estimat</div>
-      <div class="kpi-value">{{ summary.total_profit|floatformat:0 }}</div>
-      <div class="kpi-note">Din analize investiționale</div>
+  </div>
+  <div class="bi-verdict-right">
+    <div class="bi-vstat"><div class="bi-vstat-v">{{ summary.avg_success_probability|floatformat:2 }}</div><div class="bi-vstat-l">Probabilitate medie ML</div></div>
+    {% if avg_markup %}<div class="bi-vstat"><div class="bi-vstat-v">+{{ avg_markup }}%</div><div class="bi-vstat-l">Markup mediu estimat</div></div>{% endif %}
+    <div class="bi-vstat">
+      <div class="bi-vstat-v">{{ buy_count }}</div>
+      <div class="bi-vstat-l">Produse recomandate</div>
     </div>
   </div>
 </div>
 
-<div class="chart-grid">
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2 class="card-title">Distribuția claselor de succes</h2>
-        <p class="card-subtitle">Vizualizare tip donut pentru rezultatele ML din această verificare.</p>
-      </div>
-    </div>
-    <div class="donut-wrap">
-      <div class="donut" style="background: conic-gradient({{ label_pie_gradient }});"></div>
-      <div class="legend">
-        {% for row in by_label %}
-          <div class="legend-row">
-            <span class="legend-left"><span class="legend-color" style="background: {{ row.color }};"></span>{{ row.success_label }}</span>
-            <strong>{{ row.percent|floatformat:1 }}%</strong>
-          </div>
-        {% empty %}
-          <div class="empty-state">Nu există date pentru grafic.</div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
+{% if summary.total_predictions == 1 %}
+{# ══════════════ FIȘĂ PRODUS ══════════════ #}
+{% with card=product_cards|first run=runs|first %}
 
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2 class="card-title">Distribuția pe categorii</h2>
-        <p class="card-subtitle">Arată zonele de produs care domină verificarea.</p>
-      </div>
-    </div>
-    <div class="donut-wrap">
-      <div class="donut" style="background: conic-gradient({{ category_pie_gradient }});"></div>
-      <div class="legend">
-        {% for row in by_category %}
-          <div class="legend-row">
-            <span class="legend-left"><span class="legend-color" style="background: {{ row.color }};"></span>{{ row.category }}</span>
-            <strong>{{ row.percent|floatformat:1 }}%</strong>
-          </div>
-        {% empty %}
-          <div class="empty-state">Nu există categorii.</div>
-        {% endfor %}
-      </div>
-    </div>
+{% if card %}
+<div class="fp-hero">
+  <div class="fp-ring" data-score="{{ card.investor_score }}">
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle class="fp-ring-bg" cx="40" cy="40" r="34" fill="none" stroke-width="7"/>
+      <circle class="fp-ring-fill" cx="40" cy="40" r="34" fill="none" stroke-width="7" stroke-dasharray="213.6 213.6" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+    </svg>
+    <div class="fp-ring-num"><span class="fp-ring-score">{{ card.investor_score }}</span><span class="fp-ring-lbl">/ 100</span></div>
+  </div>
+  <div>
+    <div class="fp-name">{{ card.short_name }}</div>
+    <div class="fp-cat">{{ card.category }}</div>
+    <span class="fp-decision fp-{{ card.decision }}">
+      {% if card.decision == "buy" %}✓ Recomandat pentru investiție{% elif card.decision == "watch" %}⚠ Monitorizează{% else %}✗ Nu este recomandat{% endif %}
+    </span>
   </div>
 </div>
 
-<div class="chart-grid">
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2 class="card-title">Top 10 produse după probabilitatea de succes</h2>
-        <p class="card-subtitle">Produsele cele mai atractive din punct de vedere predictiv.</p>
-      </div>
-    </div>
-    <div class="bar-list">
-      {% for run in top_success %}
-        <div class="bar-row">
-          <strong>{{ run.product.name|truncatechars:32 }}</strong>
-          <div class="bar-track"><span class="bar-fill" style="width: {% widthratio run.success_probability 1 100 %}%;"></span></div>
-          <span>{{ run.success_probability|floatformat:2 }}</span>
-        </div>
-      {% empty %}
-        <div class="empty-state">Nu există predicții.</div>
-      {% endfor %}
-    </div>
+<div class="fp-metrics">
+  <div class="fp-metric">
+    <div class="fp-metric-val">{{ card.current_price }} lei</div>
+    <div class="fp-metric-lbl">Preț {{ card.platform_label|default:"platformă" }} (RON)</div>
+    {% if card.discount > 0 %}<div class="fp-metric-sub pos-text">-{{ card.discount }}% discount activ</div>{% endif %}
   </div>
-
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2 class="card-title">Decizii investiționale</h2>
-        <p class="card-subtitle">Distribuția recomandărilor calculate pentru produsele analizate.</p>
-      </div>
-    </div>
-    {% if by_decision %}
-      <div class="donut-wrap">
-        <div class="donut" style="background: conic-gradient({{ decision_pie_gradient }});"></div>
-        <div class="legend">
-          {% for row in by_decision %}
-            <div class="legend-row">
-              <span class="legend-left"><span class="legend-color" style="background: {{ row.color }};"></span>{{ row.label }}</span>
-              <strong>{{ row.percent|floatformat:1 }}%</strong>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
+  <div class="fp-metric">
+    <div class="fp-metric-val">{{ card.recommended_price }} lei</div>
+    <div class="fp-metric-lbl">Preț recomandat ML</div>
+    <div class="fp-metric-sub {% if card.markup_pct > 0 %}pos-text{% else %}neg-text{% endif %}">{% if card.markup_pct > 0 %}+{% endif %}{{ card.markup_pct }}% față de curent</div>
+  </div>
+  <div class="fp-metric">
+    <div class="fp-metric-val">{{ card.probability|floatformat:2 }}</div>
+    <div class="fp-metric-lbl">Probabilitate succes ML</div>
+    <div class="fp-metric-sub neu-text">LogisticRegression</div>
+  </div>
+  <div class="fp-metric">
+    {% if card.review_count > 0 %}
+      <div class="fp-metric-val">{{ card.review_count }}</div>
+      <div class="fp-metric-lbl">Recenzii verificate</div>
+      {% if card.rating > 0 %}<div class="fp-metric-sub pos-text">{{ card.rating|floatformat:1 }} ★ rating</div>{% endif %}
+    {% elif card.sales_volume > 0 %}
+      <div class="fp-metric-val">{{ card.sales_volume }}</div>
+      <div class="fp-metric-lbl">Vânzări / lună</div>
     {% else %}
-      <div class="empty-state">Nu există încă analize investiționale pentru această verificare.</div>
+      <div class="fp-metric-val">{{ card.investor_score }}</div>
+      <div class="fp-metric-lbl">Scor oportunitate</div>
     {% endif %}
   </div>
 </div>
+{% endif %}
 
-<div class="chart-grid">
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2 class="card-title">Preț platformă vs. preț recomandat ML</h2>
-        <p class="card-subtitle">Util pentru poziționarea competitivă a produselor.</p>
+{% if run %}
+{% with expl=run.explanation %}
+{% if expl.positive_factors or expl.negative_factors %}
+<div class="fp-xai">
+  <div class="fp-xai-title">Factori care au influențat predicția</div>
+  <div class="fp-xai-grid">
+    <div>
+      <div class="fp-xai-col-lbl xai-pos-lbl">Factori favorabili</div>
+      {% for f in expl.positive_factors %}
+      <div class="xai-row">
+        <div class="xai-row-lbl">{{ f.name }}</div>
+        <div class="xai-bar-wrap"><div class="xai-bar-fill xai-bar-pos" style="width:{% widthratio f.contribution 0.15 100 %}%;"></div></div>
+        <div class="xai-row-val xai-val-pos">+{{ f.contribution|floatformat:4 }}</div>
       </div>
+      {% empty %}<div style="font-size:12px;color:#64748b;">Date indisponibile</div>{% endfor %}
     </div>
-    <div class="table-wrapper">
-      <table>
-        <thead><tr><th>Produs</th><th>Platformă</th><th>ML</th><th>Diferență</th></tr></thead>
-        <tbody>
-        {% for row in price_comparison %}
-          <tr>
-            <td>{{ row.product }}</td>
-            <td>{{ row.platform_price }}</td>
-            <td>{{ row.recommended_price }}</td>
-            <td>{% if row.difference >= 0 %}<span class="positive">+{{ row.difference }}</span>{% else %}<span class="negative">{{ row.difference }}</span>{% endif %}</td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="4" class="empty-state">Nu există preț de platformă salvat pentru produsele din această verificare.</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
+    <div>
+      <div class="fp-xai-col-lbl xai-neg-lbl">Factori de risc</div>
+      {% for f in expl.negative_factors %}
+      <div class="xai-row">
+        <div class="xai-row-lbl">{{ f.name }}</div>
+        <div class="xai-bar-wrap"><div class="xai-bar-fill xai-bar-neg" style="width:{% widthratio f.contribution 0.05 100 %}%;"></div></div>
+        <div class="xai-row-val xai-val-neg">{{ f.contribution|floatformat:4 }}</div>
+      </div>
+      {% empty %}<div style="font-size:12px;color:#64748b;">Fără factori de risc semnificativi</div>{% endfor %}
     </div>
   </div>
+</div>
+{% endif %}
+{% endwith %}
+{% endif %}
 
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2 class="card-title">Top profit estimat</h2>
-        <p class="card-subtitle">Produse ordonate după profitul total estimat.</p>
-      </div>
+{% if product_cards %}
+
+<!-- Grafice fișă produs -->
+<div class="bi-charts" style="margin-bottom:1.25rem;">
+  <div class="bi-chart-card">
+    {% with card=product_cards|first %}
+    <div class="bi-chart-ttl">Preț {{ card.platform_label|default:"platformă" }} vs. recomandat ML</div>
+    {% endwith %}
+    <div class="bi-chart-sub">Oportunitate de markup la revânzare (RON)</div>
+    <div class="bi-legend">
+      <span class="bi-legend-item"><span class="bi-legend-sq" style="background:#85B7EB;"></span>Preț Amazon</span>
+      <span class="bi-legend-item"><span class="bi-legend-sq" style="background:#1D9E75;"></span>Recomandat ML</span>
     </div>
-    <div class="table-wrapper">
-      <table>
-        <thead><tr><th>Produs</th><th>Profit total</th><th>ROI</th><th>Decizie</th></tr></thead>
-        <tbody>
-        {% for analysis in investment_rows %}
-          <tr>
-            <td>{{ analysis.product.name }}</td>
-            <td>{{ analysis.total_profit }}</td>
-            <td>{{ analysis.roi_percent|floatformat:1 }}%</td>
-            <td><span class="badge badge-info">{{ analysis.get_decision_label_display }}</span></td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="4" class="empty-state">Nu există încă profit estimat pentru această verificare.</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <div style="position:relative;width:100%;height:180px;"><canvas id="fpPriceChart"></canvas></div>
+  </div>
+  <div class="bi-chart-card">
+    <div class="bi-chart-ttl">Profil oportunitate</div>
+    <div class="bi-chart-sub">Scor multi-dimensional: calitate, cerere, potențial</div>
+    <div style="position:relative;width:100%;height:180px;"><canvas id="fpRadarChart"></canvas></div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">
-    <div>
-      <h2 class="card-title">Produsele din această verificare</h2>
-      <p class="card-subtitle">Tabel operațional pentru inspectarea predicțiilor individuale.</p>
-    </div>
-  </div>
+  <div class="card-header"><div><h2 class="card-title">Decizie investițională</h2><p class="card-subtitle">Metrici complete pentru decizia de investiție.</p></div></div>
   <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Produs</th>
-          <th>Categorie</th>
-          <th>Rezultat</th>
-          <th>Probabilitate</th>
-          <th>Preț recomandat</th>
-          <th>Detalii</th>
-        </tr>
-      </thead>
+    <table class="bi-dtable">
+      <thead><tr><th>Produs</th><th>Scor</th><th>Probabilitate</th><th>Markup</th><th>Cerere</th><th>Decizie</th><th></th></tr></thead>
       <tbody>
-      {% for run in runs %}
-        <tr>
-          <td>{{ run.product.name }}</td>
-          <td>{{ run.product.category }}</td>
-          <td>{{ run.success_label }}</td>
-          <td>{{ run.success_probability|floatformat:2 }}</td>
-          <td>{{ run.recommended_price }}</td>
-          <td><a class="btn btn-ghost" href="/predictii/produs/{{ run.product.id }}/">Vezi XAI</a></td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="6" class="empty-state">Nu există predicții în această verificare.</td></tr>
+      {% for card in product_cards %}
+      <tr>
+        <td><div style="font-weight:600;">{{ card.short_name }}</div><div style="font-size:11px;color:#64748b;">{{ card.category }}</div></td>
+        <td><div class="prog-bar"><div class="prog-track"><div class="prog-fill" style="width:{{ card.investor_score }}%;background:{% if card.investor_score >= 65 %}#16a34a{% elif card.investor_score >= 35 %}#d97706{% else %}#dc2626{% endif %};"></div></div><span style="font-size:12px;font-weight:600;">{{ card.investor_score }}</span></div></td>
+        <td style="font-weight:600;color:{% if card.probability >= 0.8 %}#16a34a{% elif card.probability >= 0.5 %}#d97706{% else %}#dc2626{% endif %};">{{ card.probability|floatformat:2 }}</td>
+        <td class="{% if card.markup_pct > 0 %}bi-markup-pos{% else %}bi-markup-neg{% endif %}">{% if card.markup_pct > 0 %}+{% endif %}{{ card.markup_pct }}%</td>
+        <td style="font-size:12px;">{% if card.rating > 0 %}{{ card.rating|floatformat:1 }}★{% endif %}{% if card.review_count > 0 %}  -  {{ card.review_count }} rec.{% endif %}{% if card.sales_volume > 0 %}  -  {{ card.sales_volume }} vânz./lună{% endif %}{% if not card.rating and not card.review_count and not card.sales_volume %}&mdash;{% endif %}</td>
+        <td><span class="bi-pill bi-pill-{{ card.decision }}">{{ card.decision_label }}</span></td>
+        <td><a class="btn btn-ghost" href="/predictii/produs/{{ card.product_id }}/" style="font-size:12px;">XAI &rarr;</a></td>
+      </tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+{% endif %}
+{% endwith %}
+
+{% else %}
+{# ══════════════ RAPORT LOT ══════════════ #}
+
+{% if product_cards %}
+<h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:1.25rem 0 .75rem;">Clasament oportunități</h2>
+<div class="opp-grid">
+  {% for card in product_cards %}
+  <div class="opp-card {% if forloop.first %}opp-top{% endif %}" data-score="{{ card.investor_score }}">
+    <div class="opp-score-row">
+      <div class="opp-ring">
+        <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+          <circle class="lot-ring-bg" cx="27" cy="27" r="23" fill="none" stroke-width="5"/>
+          <circle class="lot-ring-fill" cx="27" cy="27" r="23" fill="none" stroke-width="5" stroke-dasharray="144.5 144.5" stroke-linecap="round" transform="rotate(-90 27 27)"/>
+        </svg>
+        <div class="opp-ring-num">{{ card.investor_score }}</div>
+      </div>
+      <div>
+        <div class="opp-name">{{ card.short_name }}</div>
+        <div class="opp-cat">{{ card.category }}</div>
+        {% if forloop.first %}<span class="opp-badge opp-b-top">#1 top pick</span>
+        {% elif card.decision == "buy" %}<span class="opp-badge opp-b-buy">recomandat</span>
+        {% elif card.decision == "watch" %}<span class="opp-badge opp-b-watch">monitorizează</span>
+        {% else %}<span class="opp-badge opp-b-skip">evită</span>{% endif %}
+        {% if card.price_warning %}<span class="opp-badge" style="background:#fff3cd;color:#856404;margin-top:3px;">⚠ preț >300 RON</span>{% endif %}
+      </div>
+    </div>
+    <div class="opp-metrics">
+      <div class="opp-metric"><span>Preț {{ card.platform_label|default:"platformă" }}</span><span>{{ card.current_price }} lei</span></div>
+      <div class="opp-metric"><span>ML recomandat</span><span>{{ card.recommended_price }} lei</span></div>
+      {% if card.rating > 0 %}<div class="opp-metric"><span>Rating</span><span>{{ card.rating|floatformat:1 }} ★  -  {{ card.review_count }} rec.</span></div>{% endif %}
+      {% if card.discount > 0 %}<div class="opp-metric"><span>Discount</span><span>{{ card.discount }}%</span></div>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="bi-charts">
+  <div class="bi-chart-card">
+    {% with card=product_cards|first %}
+    <div class="bi-chart-ttl">Preț {{ card.platform_label|default:"curent" }} vs. recomandat ML</div>
+    {% endwith %}
+    <div class="bi-chart-sub">Potențial de markup la revânzare (RON)</div>
+    <div class="bi-legend">
+      <span class="bi-legend-item"><span class="bi-legend-sq" style="background:#85B7EB;"></span>Preț curent</span>
+      <span class="bi-legend-item"><span class="bi-legend-sq" style="background:#1D9E75;"></span>Recomandat ML</span>
+    </div>
+    <div style="position:relative;width:100%;height:220px;"><canvas id="priceChart"></canvas></div>
+  </div>
+  <div class="bi-chart-card">
+    <div class="bi-chart-ttl">Semnale de cerere</div>
+    <div class="bi-chart-sub">Rating × recenzii × vânzări/lună (mărimea bulei)</div>
+    <div class="bi-legend">
+      <span class="bi-legend-item"><span class="bi-legend-ci" style="background:rgba(29,158,117,.7);"></span>Scor &ge; 65</span>
+      <span class="bi-legend-item"><span class="bi-legend-ci" style="background:rgba(239,159,39,.7);"></span>35&ndash;65</span>
+      <span class="bi-legend-item"><span class="bi-legend-ci" style="background:rgba(226,75,74,.7);"></span>&lt; 35</span>
+    </div>
+    <div style="position:relative;width:100%;height:220px;"><canvas id="demandChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div><h2 class="card-title">Decizie rapidă per produs</h2><p class="card-subtitle">Clasament după scorul de oportunitate cu verdict investițional.</p></div></div>
+  <div class="table-wrapper">
+    {% if product_cards %}
+    <table class="bi-dtable">
+      <thead><tr><th>Produs</th><th>Scor</th><th>Probabilitate</th><th>Markup</th><th>Cerere</th><th>Decizie</th><th></th></tr></thead>
+      <tbody>
+      {% for card in product_cards %}
+      <tr>
+        <td><div style="font-weight:600;max-width:220px;line-height:1.35;">{{ card.short_name }}</div><div style="font-size:11px;color:#64748b;">{{ card.category }}</div></td>
+        <td><div class="prog-bar"><div class="prog-track"><div class="prog-fill" style="width:{{ card.investor_score }}%;background:{% if card.investor_score >= 65 %}#16a34a{% elif card.investor_score >= 35 %}#d97706{% else %}#dc2626{% endif %};"></div></div><span style="font-size:12px;font-weight:600;">{{ card.investor_score }}</span></div></td>
+        <td style="font-weight:600;color:{% if card.probability >= 0.8 %}#16a34a{% elif card.probability >= 0.5 %}#d97706{% else %}#dc2626{% endif %};">{{ card.probability|floatformat:2 }}</td>
+        <td class="{% if card.markup_pct > 0 %}bi-markup-pos{% else %}bi-markup-neg{% endif %}">{% if card.markup_pct > 0 %}+{% endif %}{{ card.markup_pct }}%</td>
+        <td style="font-size:12px;color:#334155;">{% if card.rating > 0 %}{{ card.rating|floatformat:1 }}★{% endif %}{% if card.review_count > 0 %}  -  {{ card.review_count }} rec.{% endif %}{% if card.sales_volume > 0 %}  -  {{ card.sales_volume }} vânz./lună{% endif %}{% if not card.rating and not card.review_count and not card.sales_volume %}&mdash;{% endif %}</td>
+        <td><span class="bi-pill bi-pill-{{ card.decision }}">{{ card.decision_label }}</span></td>
+        <td><a class="btn btn-ghost" href="/predictii/produs/{{ card.product_id }}/" style="font-size:12px;">XAI &rarr;</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <table><thead><tr><th>Produs</th><th>Categorie</th><th>Rezultat</th><th>Probabilitate</th><th>Preț recomandat</th><th></th></tr></thead>
+    <tbody>{% for run in runs %}<tr><td>{{ run.product.name }}</td><td>{{ run.product.category }}</td><td>{{ run.success_label }}</td><td>{{ run.success_probability|floatformat:2 }}</td><td>{{ run.recommended_price }}</td><td><a class="btn btn-ghost" href="/predictii/produs/{{ run.product.id }}/">XAI &rarr;</a></td></tr>{% empty %}<tr><td colspan="6" class="empty-state">Nu există predicții.</td></tr>{% endfor %}</tbody></table>
+    {% endif %}
+  </div>
+</div>
+
+{% endif %}{# end single/lot #}
+
+{% if investment_rows %}
+<div class="card" style="margin-top:1.25rem;">
+  <div class="card-header"><div><h2 class="card-title">Top profit estimat</h2><p class="card-subtitle">Din analizele investiționale salvate.</p></div></div>
+  <div class="table-wrapper">
+    <table><thead><tr><th>Produs</th><th>Profit total</th><th>ROI</th><th>Decizie</th></tr></thead>
+    <tbody>{% for analysis in investment_rows %}<tr><td>{{ analysis.product.name }}</td><td>{{ analysis.total_profit }}</td><td>{{ analysis.roi_percent|floatformat:1 }}%</td><td><span class="badge badge-info">{{ analysis.get_decision_label_display }}</span></td></tr>{% endfor %}</tbody></table>
+  </div>
+</div>
+{% endif %}
+
+<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:2rem;">Platformă de asistare a deciziilor comerciale prin Machine Learning, Explainable AI și Business Intelligence.</p>
+
+{{ product_cards|json_script:"bi-cards-data" }}
+<script>
+(function(){
+  function renderCharts(){
+    if(typeof Chart==='undefined'){ console.error('Chart.js nedisponibil'); return; }
+
+    var el=document.getElementById('bi-cards-data');
+    var cards=el?JSON.parse(el.textContent):[];
+    if(!cards.length){ console.warn('product_cards gol'); return; }
+
+    var labels=cards.map(function(c){return (c.short_name||'').substring(0,16);});
+    var curPrices=cards.map(function(c){return parseFloat(c.current_price)||0;});
+    var recPrices=cards.map(function(c){return parseFloat(c.recommended_price)||0;});
+
+    /* Score ring - fisa produs */
+    var fpRing=document.querySelector('.fp-ring[data-score]');
+    if(fpRing){
+      var s=parseFloat(fpRing.dataset.score)||0,circ=213.6,off=circ*(1-s/100);
+      var fill=fpRing.querySelector('.fp-ring-fill'),bg=fpRing.querySelector('.fp-ring-bg');
+      if(fill){
+        fill.setAttribute('stroke-dashoffset',off.toFixed(1));
+        var col=s>=65?['#1D9E75','#E1F5EE']:s>=35?['#EF9F27','#FEF9C3']:['#E24B4A','#FEE2E2'];
+        fill.setAttribute('stroke',col[0]); bg.setAttribute('stroke',col[1]);
+      }
+    }
+    /* Score rings lot */
+    document.querySelectorAll('.opp-card[data-score]').forEach(function(card){
+      var s=parseFloat(card.dataset.score)||0,circ=144.5,off=circ*(1-s/100);
+      var fill=card.querySelector('.lot-ring-fill'),bg=card.querySelector('.lot-ring-bg');
+      if(!fill)return;
+      fill.setAttribute('stroke-dashoffset',off.toFixed(1));
+      var col=s>=65?['#1D9E75','#E1F5EE']:s>=35?['#EF9F27','#FEF9C3']:['#E24B4A','#FEE2E2'];
+      fill.setAttribute('stroke',col[0]); bg.setAttribute('stroke',col[1]);
+    });
+
+    /* Fisa produs: price bar */
+    var fpPrice=document.getElementById('fpPriceChart');
+    if(fpPrice){
+      new Chart(fpPrice,{type:'bar',data:{labels:labels,datasets:[
+        {label:'Pret Amazon',data:curPrices,backgroundColor:'#85B7EB',borderRadius:6,barThickness:44},
+        {label:'Recomandat ML',data:recPrices,backgroundColor:'#1D9E75',borderRadius:6,barThickness:44}
+      ]},options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(2)+' lei';}}}},
+        scales:{x:{ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},
+                y:{ticks:{font:{size:10},color:'#64748b',callback:function(v){return v+' lei';}},grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    }
+
+    /* Fisa produs: radar */
+    var fpRadar=document.getElementById('fpRadarChart');
+    if(fpRadar){
+      var c0=cards[0];
+      var rv=[
+        Math.min(100,parseFloat(c0.investor_score)||0),
+        Math.min(100,(parseFloat(c0.probability)||0)*100),
+        Math.min(100,(parseFloat(c0.rating)||0)/5*100),
+        (parseFloat(c0.review_count)||0)>0?Math.min(100,Math.log10((parseFloat(c0.review_count)||1)+1)/Math.log10(200000)*100):0,
+        Math.min(100,Math.max(0,(parseFloat(c0.markup_pct)||0)*2))
+      ];
+      new Chart(fpRadar,{type:'radar',data:{
+        labels:['Scor oportunitate','Probabilitate ML','Calitate produs','Cerere piata','Potential markup'],
+        datasets:[{data:rv,backgroundColor:'rgba(29,158,117,0.15)',borderColor:'#1D9E75',borderWidth:2,pointBackgroundColor:'#1D9E75',pointRadius:4}]
+      },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'rgba(0,0,0,0.06)'},
+          pointLabels:{font:{size:9},color:'#64748b'},angleLines:{color:'rgba(0,0,0,0.06)'}}}}});
+    }
+
+    /* Lot: price bar */
+    var pEl=document.getElementById('priceChart');
+    if(pEl){
+      new Chart(pEl,{type:'bar',data:{labels:labels,datasets:[
+        {label:'Pret curent',data:curPrices,backgroundColor:'#85B7EB',borderRadius:4},
+        {label:'Recomandat ML',data:recPrices,backgroundColor:'#1D9E75',borderRadius:4}
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{font:{size:10},color:'#64748b',maxRotation:30},grid:{display:false}},
+                y:{ticks:{font:{size:10},color:'#64748b',callback:function(v){return v+' lei';}},grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    }
+
+    /* Lot: demand bubble */
+    var dEl=document.getElementById('demandChart');
+    if(dEl){
+      var maxR=Math.max.apply(null,cards.map(function(d){return parseFloat(d.review_count)||0;}))||1;
+      var ds=cards.map(function(d){
+        var sc=parseFloat(d.investor_score)||0;
+        var hi=sc>=65,mi=sc>=35;
+        var col=hi?'rgba(29,158,117,.65)':mi?'rgba(239,159,39,.65)':'rgba(226,75,74,.65)';
+        var brd=hi?'#1D9E75':mi?'#EF9F27':'#E24B4A';
+        var sales=parseFloat(d.sales_volume)||0;
+        var r=sales>0?Math.max(6,Math.min(22,sales/500)):6;
+        return{label:d.short_name,data:[{x:parseFloat(d.rating)||0,y:parseFloat(d.review_count)||0,r:r}],backgroundColor:col,borderColor:brd,borderWidth:1.5};
+      });
+      new Chart(dEl,{type:'bubble',data:{datasets:ds},options:{
+        responsive:true,maintainAspectRatio:false,layout:{padding:12},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+' | '+c.parsed.x.toFixed(1)+'* - '+c.parsed.y.toLocaleString('ro-RO')+' rec.';}}}},
+        scales:{
+          x:{min:2.5,max:5.5,title:{display:true,text:'Rating',font:{size:10},color:'#64748b'},ticks:{font:{size:10},color:'#64748b'},grid:{color:'rgba(0,0,0,0.04)'}},
+          y:{min:0,max:Math.ceil(maxR*1.2),title:{display:true,text:'Nr. recenzii',font:{size:10},color:'#64748b'},ticks:{font:{size:10},color:'#64748b',callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}},grid:{color:'rgba(0,0,0,0.04)'}}
+        }}});
+    }
+  }
+
+  /* Incarcare dinamica Chart.js */
+  if(typeof Chart!=='undefined'){
+    renderCharts();
+  } else {
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+    s.onload=renderCharts;
+    s.onerror=function(){ console.error('Chart.js CDN error'); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+
 {% endblock %}

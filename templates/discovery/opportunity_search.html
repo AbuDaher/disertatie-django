@@ -1,80 +1,269 @@
 {% extends 'base.html' %}
-{% block title %}Caută oportunități comerciale{% endblock %}
+{% block title %}Descoperă oportunități comerciale{% endblock %}
 {% block content %}
+
 <div class="page-header">
-  <div class="page-eyebrow">Discovery comercial</div>
-  <h1>Caută oportunități comerciale</h1>
+  <div class="page-eyebrow">Investor Discovery</div>
+  <h1>Descoperă oportunități comerciale</h1>
   <p class="page-subtitle">
-    Definește preferințele de căutare, iar aplicația identifică produse candidate cu potențial comercial ridicat.
-    Sursa reală poate fi eBay API, iar pentru demonstrație stabilă există CSV fallback.
+    Algoritmul analizează piața în timp real și identifică produsele cu cel mai
+    mare potențial de profit — cerere dovedită, calitate confirmată, trend de creștere
+    și potențial de marjă.
   </p>
 </div>
 
 <div class="card">
-  <div class="card-header">
-    <div>
-      <h2 class="card-title">Filtre de căutare</h2>
-      <p class="card-subtitle">Alege categoria, bugetul și pragurile minime pentru rating și recenzii.</p>
-    </div>
-  </div>
-  <form method="post">
+  <form method="post" id="discovery-form">
     {% csrf_token %}
-    <div class="form-grid">
-      {% for field in form %}
-        <div class="form-row">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
-          {{ field.errors }}
+
+    {# Input-uri ascunse controlate exclusiv din JS — fara interferenta Django #}
+    <input type="hidden" name="data_source" id="js_data_source" value="">
+    <input type="hidden" name="top_n"       id="js_top_n"       value="">
+
+    {# ─── 1. Platforma sursa ─────────────────────────────────────────────── #}
+    <div style="margin-bottom:28px;">
+      <label style="font-size:15px;font-weight:900;color:#334155;display:block;margin-bottom:14px;">
+        Platforma sursa
+      </label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="pick-card" data-group="source" data-value="api" style="flex:1;min-width:100px;max-width:140px;border:2px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:22px;margin-bottom:5px;">🛒</div>
+          <div style="font-size:13px;font-weight:800;color:#334155;">Amazon</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;">date live</div>
         </div>
-      {% endfor %}
+        <div class="pick-card" data-group="source" data-value="aliexpress" style="flex:1;min-width:100px;max-width:140px;border:2px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:22px;margin-bottom:5px;">🔴</div>
+          <div style="font-size:13px;font-weight:800;color:#334155;">AliExpress</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;">date live</div>
+        </div>
+        <div class="pick-card" data-group="source" data-value="ebay" style="flex:1;min-width:100px;max-width:140px;border:2px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:22px;margin-bottom:5px;">🔵</div>
+          <div style="font-size:13px;font-weight:800;color:#334155;">eBay</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;">date live</div>
+        </div>
+        <div class="pick-card" data-group="source" data-value="csv" style="flex:1;min-width:100px;max-width:140px;border:2px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:22px;margin-bottom:5px;">📂</div>
+          <div style="font-size:13px;font-weight:800;color:#334155;">Demo CSV</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;">date locale</div>
+        </div>
+      </div>
     </div>
-    <div class="actions">
-      <button type="submit">Caută oportunități</button>
-      <a class="btn btn-secondary" href="/oportunitati/">Resetează filtrele</a>
+
+    {# ─── 2. Top N ───────────────────────────────────────────────────────── #}
+    <div style="margin-bottom:28px;">
+      <label style="font-size:15px;font-weight:900;color:#334155;display:block;margin-bottom:14px;">
+        Cate oportunitati vrei sa descoperi?
+      </label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="pick-card" data-group="topn" data-value="1" style="flex:1;min-width:90px;max-width:130px;border:2px solid var(--border);border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:26px;font-weight:950;color:var(--primary);letter-spacing:-0.05em;">Top 1</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;">Test rapid</div>
+        </div>
+        <div class="pick-card" data-group="topn" data-value="3" style="flex:1;min-width:90px;max-width:130px;border:2px solid var(--border);border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:26px;font-weight:950;color:var(--primary);letter-spacing:-0.05em;">Top 3</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;">Analiza rapida</div>
+        </div>
+        <div class="pick-card" data-group="topn" data-value="5" style="flex:1;min-width:90px;max-width:130px;border:2px solid var(--border);border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:26px;font-weight:950;color:var(--primary);letter-spacing:-0.05em;">Top 5</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;">Recomandat</div>
+        </div>
+        <div class="pick-card" data-group="topn" data-value="10" style="flex:1;min-width:90px;max-width:130px;border:2px solid var(--border);border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:26px;font-weight:950;color:var(--primary);letter-spacing:-0.05em;">Top 10</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;">Analiza completa</div>
+        </div>
+      </div>
+    </div>
+
+    {# ─── 3. Categorie ───────────────────────────────────────────────────── #}
+    <div style="margin-bottom:28px;">
+      <label style="font-size:15px;font-weight:900;color:#334155;display:block;margin-bottom:14px;">
+        Categorie
+        <span style="font-size:12px;color:var(--muted);font-weight:600;margin-left:8px;">— optional</span>
+      </label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div class="pick-card" data-group="category" data-value="" style="flex:1;min-width:90px;max-width:115px;border:2px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:18px;margin-bottom:3px;">🌐</div>
+          <div style="font-size:12px;font-weight:800;color:#334155;">Toate</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;">Auto</div>
+        </div>
+        <div class="pick-card" data-group="category" data-value="Electronics" style="flex:1;min-width:90px;max-width:115px;border:2px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:18px;margin-bottom:3px;">📱</div>
+          <div style="font-size:12px;font-weight:800;color:#334155;">Electronics</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;">Gadgeturi</div>
+        </div>
+        <div class="pick-card" data-group="category" data-value="Beauty" style="flex:1;min-width:90px;max-width:115px;border:2px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:18px;margin-bottom:3px;">💄</div>
+          <div style="font-size:12px;font-weight:800;color:#334155;">Beauty</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;">Cosmetice</div>
+        </div>
+        <div class="pick-card" data-group="category" data-value="Sports" style="flex:1;min-width:90px;max-width:115px;border:2px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:18px;margin-bottom:3px;">🏋️</div>
+          <div style="font-size:12px;font-weight:800;color:#334155;">Sports</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;">Fitness</div>
+        </div>
+        <div class="pick-card" data-group="category" data-value="Home" style="flex:1;min-width:90px;max-width:115px;border:2px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .18s ease;user-select:none;">
+          <div style="font-size:18px;margin-bottom:3px;">🏠</div>
+          <div style="font-size:12px;font-weight:800;color:#334155;">Home</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;">Casa & Deco</div>
+        </div>
+      </div>
+      <div style="display:none;">{{ form.category }}</div>
+    </div>
+
+    {# ─── 4. Filtre avansate ─────────────────────────────────────────────── #}
+    <details id="filters-details">
+      <summary style="cursor:pointer;font-size:14px;font-weight:800;color:var(--primary-dark);padding:10px 0;list-style:none;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">⚙</span>
+        Filtre avansate
+        <span style="font-size:12px;color:var(--muted);font-weight:600;">— cuvant cheie specific, pret, rating, recenzii</span>
+      </summary>
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="form-row">
+          <label for="{{ form.keyword.id_for_label }}">{{ form.keyword.label }}</label>
+          {{ form.keyword }}
+          <span class="helptext">{{ form.keyword.help_text }}</span>
+        </div>
+        <div class="form-row">
+          <label for="{{ form.max_price.id_for_label }}">{{ form.max_price.label }}</label>
+          {{ form.max_price }}
+          <span class="helptext">{{ form.max_price.help_text }}</span>
+        </div>
+        <div class="form-row">
+          <label for="{{ form.min_rating.id_for_label }}">{{ form.min_rating.label }}</label>
+          {{ form.min_rating }}
+          <span class="helptext">{{ form.min_rating.help_text }}</span>
+        </div>
+        <div class="form-row">
+          <label for="{{ form.min_reviews.id_for_label }}">{{ form.min_reviews.label }}</label>
+          {{ form.min_reviews }}
+          <span class="helptext">{{ form.min_reviews.help_text }}</span>
+        </div>
+      </div>
+    </details>
+
+    <div id="form-errors" style="display:none;margin-top:12px;padding:10px 14px;background:#fee2e2;border-radius:10px;color:#991b1b;font-size:13px;font-weight:600;"></div>
+
+    <div class="actions" style="margin-top:24px;">
+      <button type="submit" style="font-size:16px;padding:14px 36px;">
+        🔍 Descopera oportunitati
+      </button>
     </div>
   </form>
 </div>
 
+{# ─── Rezultate ──────────────────────────────────────────────────────────── #}
 {% if search_query %}
 <div class="card">
   <div class="card-header">
     <div>
-      <h2 class="card-title">Rezultate căutare: {{ search_query.keyword }}</h2>
+      <h2 class="card-title">
+        {% if search_query.keyword %}
+          Oportunitati pentru: <em>{{ search_query.keyword }}</em>
+        {% elif search_query.category %}
+          Top {{ search_query.top_n }} oportunitati — {{ search_query.category }}
+        {% else %}
+          Descoperire automata — Top {{ search_query.top_n }} oportunitati
+        {% endif %}
+      </h2>
       <p class="card-subtitle">
-        Sursa cerută: {{ search_query.get_data_source_display }} · Sursa folosită: {{ search_query.used_source|default:"neprecizată" }}
+        {% if search_query.status_message %}{{ search_query.status_message }}{% endif %}
       </p>
     </div>
+    <span class="badge badge-success">{{ discovered_products|length }} produse</span>
   </div>
-  {% if search_query.status_message %}<div class="alert alert-info">{{ search_query.status_message }}</div>{% endif %}
+
   {% include 'discovery/partials_results_table.html' with discovered_products=discovered_products %}
+
+  {% if discovered_products %}
+  <div style="border-top:1px solid var(--border);margin-top:24px;padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#334155;">Raport comparativ pentru tot lotul</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;">
+        Analizeaza toate cele {{ discovered_products|length }} produse simultan si genereaza raportul BI.
+      </div>
+    </div>
+    <a href="{% url 'analyze_batch' search_query.id %}"
+       style="display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;font-size:14px;font-weight:700;padding:12px 24px;border-radius:12px;text-decoration:none;white-space:nowrap;">
+      📊 Raport lot ({{ discovered_products|length }} produse)
+    </a>
+  </div>
+  {% endif %}
 </div>
 {% endif %}
 
+{# ─── Sesiuni recente ────────────────────────────────────────────────────── #}
+{% if recent_searches %}
 <div class="card">
   <div class="card-header">
-    <div>
-      <h2 class="card-title">Căutări recente</h2>
-      <p class="card-subtitle">Ultimele interogări efectuate în modulul de oportunități.</p>
-    </div>
+    <div><h2 class="card-title">Sesiuni recente</h2></div>
   </div>
   <div class="table-wrapper">
     <table>
-      <thead><tr><th>Cuvânt cheie</th><th>Categorie</th><th>Top rezultate</th><th>Sursă date</th><th>Data</th></tr></thead>
+      <thead>
+        <tr><th>Cautare</th><th>Categorie</th><th>Top</th><th>Sursa</th><th>Data</th><th></th></tr>
+      </thead>
       <tbody>
       {% for item in recent_searches %}
         <tr>
-          <td><a href="/oportunitati/cautare/{{ item.id }}/">{{ item.keyword }}</a></td>
-          <td>{{ item.category|default:"-" }}</td>
+          <td><strong>{{ item.keyword|default:"Descoperire automata" }}</strong></td>
+          <td>{{ item.category|default:"—" }}</td>
           <td>Top {{ item.top_n }}</td>
-          <td><span class="badge badge-info">{{ item.get_data_source_display }}</span></td>
+          <td><span class="badge badge-info">{{ item.used_source|default:item.get_data_source_display }}</span></td>
           <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+          <td><a class="btn btn-ghost" href="/oportunitati/cautare/{{ item.id }}/">Vezi</a></td>
         </tr>
-      {% empty %}
-        <tr><td colspan="5" class="empty-state">Nu există încă interogări salvate.</td></tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+{% endif %}
+
+<script>
+(function () {
+  /* Stare curenta a selectiilor */
+  var selected = { source: '', topn: '', category: '' };
+
+  /* Activare card vizual + sync hidden input */
+  function pick(group, val) {
+    document.querySelectorAll('.pick-card[data-group="' + group + '"]').forEach(function(c) {
+      var on = (c.dataset.value === val);
+      c.style.borderColor = on ? 'var(--primary)' : 'var(--border)';
+      c.style.background  = on ? 'var(--primary-soft)' : '#fff';
+      var lbl = c.querySelector('div:nth-child(2)');
+      if (lbl) lbl.style.color = on ? 'var(--primary)' : '#334155';
+    });
+    selected[group] = val;
+
+    if (group === 'source')   document.getElementById('js_data_source').value = val;
+    if (group === 'topn')     document.getElementById('js_top_n').value = val;
+    if (group === 'category') {
+      var cat = document.getElementById('id_category');
+      if (cat) cat.value = val;
+    }
+  }
+
+  /* Ataseaza click pe toate cardurile */
+  document.querySelectorAll('.pick-card').forEach(function(c) {
+    c.addEventListener('click', function() { pick(c.dataset.group, c.dataset.value); });
+  });
+
+  /* Validare la submit */
+  document.getElementById('discovery-form').addEventListener('submit', function(e) {
+    var errEl = document.getElementById('form-errors');
+    var errs  = [];
+    if (!selected.source) errs.push('Selecteaza o platforma sursa.');
+    if (!selected.topn)   errs.push('Selecteaza cate oportunitati vrei.');
+    if (errs.length) {
+      e.preventDefault();
+      errEl.innerHTML = errs.join('<br>');
+      errEl.style.display = 'block';
+    } else {
+      errEl.style.display = 'none';
+    }
+  });
+
+}());
+</script>
+
 {% endblock %}

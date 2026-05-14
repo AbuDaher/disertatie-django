@@ -108,6 +108,70 @@ def _build_price_comparison(runs):
     return rows
 
 
+def _build_product_cards(runs):
+    """Date îmbogățite per produs pentru noul dashboard BI investițional."""
+    cards = []
+    for run in runs.order_by("-success_probability")[:10]:
+        raw = run.explanation or {}
+        # explanation poate fi nested {"raw_data": {...}} sau flat
+        rd = raw.get("raw_data", raw) if isinstance(raw.get("raw_data"), dict) else raw
+        investor_score = float(
+            rd.get("scor_oportunitate_investitor") or
+            rd.get("investor_score") or 0
+        )
+        current_price = float(
+            rd.get("pret_convertit_ron") or
+            rd.get("current_price") or
+            (run.product.current_price if hasattr(run.product, "current_price") else 0) or 0
+        )
+        recommended = float(run.recommended_price or 0)
+        markup_pct = round(((recommended - current_price) / current_price * 100), 1) if current_price > 0 else 0.0
+
+        prob = float(run.success_probability or 0)
+        # Decizie combinata: scor investitor + probabilitate ML
+        # OR anterior genera Investeste cu scor 27 si prob 0.95 - incorect
+        if investor_score >= 60 and prob >= 0.75:
+            decision, decision_label = "buy", "Investește"
+        elif investor_score >= 35 or (prob >= 0.65 and investor_score >= 25):
+            decision, decision_label = "watch", "Monitorizează"
+        else:
+            decision, decision_label = "skip", "Evită"
+
+        price_warning = current_price > 300
+
+        # Label platformă pentru afisare
+        _platform_labels = {
+            'amazon_api': 'Amazon', 'aliexpress_api': 'AliExpress',
+            'ebay_api': 'eBay', 'csv_fallback': 'Demo',
+        }
+        platform_label = _platform_labels.get(
+            rd.get('source') or rd.get('sursa_oportunitate', ''), 'platformă'
+        )
+
+        cards.append({
+            "name": run.product.name,
+            "short_name": run.product.name[:38],
+            "price_warning": price_warning,
+            "platform_label": platform_label,
+            "category": run.product.category or "Necunoscut",
+            "investor_score": round(investor_score),
+            "probability": round(prob, 2),
+            "current_price": round(current_price, 2),
+            "recommended_price": round(float(recommended), 2),
+            "markup_pct": markup_pct,
+            "rating": round(float(rd.get("rating") or run.product.rating or 0), 1),
+            "review_count": int(rd.get("review_count") or run.product.review_count or 0),
+            "sales_volume": int(rd.get("sales_volume") or run.product.sales_volume or 0),
+            "discount": round(float(rd.get("discount_percent") or run.product.discount_percent or 0), 1),
+            "decision": decision,
+            "decision_label": decision_label,
+            "product_id": run.product.id,
+        })
+    # Sortare descrescatoare dupa investor_score
+    cards.sort(key=lambda c: c['investor_score'], reverse=True)
+    return cards
+
+
 def _investment_decision_distribution(analyses):
     rows = list(
         analyses.values("decision_label").annotate(total=Count("id")).order_by("-total")
@@ -202,6 +266,11 @@ def analysis_run_detail(request, pk):
     by_category = _build_category_distribution(runs)
     by_decision = _investment_decision_distribution(analyses) if InvestmentAnalysis else []
 
+    product_cards = _build_product_cards(runs)
+    markups = [c["markup_pct"] for c in product_cards if c["current_price"] > 0]
+    avg_markup = round(sum(markups) / len(markups), 1) if markups else 0.0
+    buy_count = sum(1 for c in product_cards if c["decision"] == "buy")
+
     context = {
         "analysis_run": analysis_run,
         "summary": summary,
@@ -218,6 +287,9 @@ def analysis_run_detail(request, pk):
             list(analyses.order_by("-total_profit")[:10]) if InvestmentAnalysis else []
         ),
         "price_comparison": _build_price_comparison(runs),
+        "product_cards": product_cards,
+        "avg_markup": avg_markup,
+        "buy_count": buy_count,
     }
     return render(request, "analytics/analysis_run_detail.html", context)
 
